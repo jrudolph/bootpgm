@@ -1,0 +1,8 @@
+11.11.2005
+- Winddk installiert
+- Portierung von native auf WinXp-DDk
+- Erster Buildvorgang des Samplecodes
+14.11.2005
+- VMWare installiert
+- XP installiert
+- Connecting windbg over serial-port to pipe with xp kernel debugger

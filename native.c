@@ -41,6 +41,7 @@ void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
     UNICODE_STRING helloWorld;
     RTL_HEAP_DEFINITION  heapParams;
 
+    DbgBreakPoint();
     //
     // Initialize some heap
     //
