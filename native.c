@@ -21,11 +21,57 @@
 #include "stdio.h"
 #include "native.h"
 
+
+WCHAR KeyNameBuffer[]		= L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ComputerName";
+WCHAR KeyNameBuffer2[]		= L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ActiveComputerName";
+WCHAR Tcpip[]		= L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters";
+WCHAR ComputerNameBuffer[]	= L"ComputerName";
+
+void setRegistryValue(WCHAR *keyName,WCHAR *valueName,WCHAR *value)
+{
+UNICODE_STRING KeyName, ValueName;
+	HANDLE SoftwareKeyHandle;
+	ULONG Status;
+	OBJECT_ATTRIBUTES ObjectAttributes;
+	ULONG Disposition;
+
+	//DbgBreakPoint();
+	//
+	// Open the Software key
+	//
+	KeyName.Buffer = keyName;
+	KeyName.Length = wcslen( keyName ) *sizeof(WCHAR);
+	InitializeObjectAttributes( &ObjectAttributes, &KeyName,
+			OBJ_CASE_INSENSITIVE, NULL, NULL );
+	Status = ZwCreateKey( &SoftwareKeyHandle, KEY_ALL_ACCESS,
+					&ObjectAttributes, 0,  NULL, REG_OPTION_NON_VOLATILE,
+					&Disposition );
+
+
+	//
+	// Create the hidden value
+	//
+	ValueName.Buffer = valueName;
+	ValueName.Length = wcslen( valueName ) *sizeof(WCHAR);
+	Status = ZwSetValueKey( SoftwareKeyHandle, &ValueName, 0, REG_SZ,
+						value,
+						wcslen( value ) * sizeof(WCHAR) );
+
+	Status = ZwClose(SoftwareKeyHandle);
+}
+
+void setComputerName(WCHAR *computerName)
+{
+	setRegistryValue(KeyNameBuffer,ComputerNameBuffer,computerName);
+	setRegistryValue(KeyNameBuffer2,ComputerNameBuffer,computerName);
+	setRegistryValue(Tcpip,L"Hostname",computerName);
+	setRegistryValue(Tcpip,L"NV Hostname",computerName);
+}
+
 //
 // Our heap
 //
 HANDLE Heap;
-
 //----------------------------------------------------------------------
 //
 // NtProcessStartup
@@ -41,7 +87,6 @@ void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
     UNICODE_STRING helloWorld;
     RTL_HEAP_DEFINITION  heapParams;
 
-    DbgBreakPoint();
     //
     // Initialize some heap
     //
@@ -66,15 +111,18 @@ void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
     //
     stringBuffer = RtlAllocateHeap( Heap, 0, 256 );
     swprintf( stringBuffer, L"\n%s", argPtr );
-    helloWorld.Buffer = stringBuffer;
-    helloWorld.Length = wcslen( stringBuffer ) * sizeof(WCHAR);
+    helloWorld.Buffer = L"das ist der neueste test";
+    helloWorld.Length = wcslen( L"das ist der neueste test" ) * sizeof(WCHAR);
     helloWorld.MaximumLength = helloWorld.Length + sizeof(WCHAR);
     NtDisplayString( &helloWorld );
-
+	
+    setComputerName(L"letzter\0\0");
     //
     // Free heap
     //
     RtlFreeHeap( Heap, 0, stringBuffer );
+    
+    
 
     //
     // Terminate

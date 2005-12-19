@@ -3,4 +3,6 @@ TARGETPATH=$(BASEDIR)\obj
 TARGETTYPE=PROGRAM
 
 INCLUDES=$(SDK_INC_PATH);$(DDK_INC_PATH);
-SOURCES=native.c
+SOURCES=usermode-registry.cpp \
+	native.c	
+	
