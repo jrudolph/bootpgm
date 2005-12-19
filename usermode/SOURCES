@@ -1,0 +1,14 @@
+TARGETNAME=test
+TARGETPATH=$(BASEDIR)\obj
+TARGETTYPE=PROGRAM
+
+TARGETLIBS=\
+        $(DDK_LIB_PATH)\kernel32.lib \
+        $(DDK_LIB_PATH)\user32.lib \
+        $(DDK_LIB_PATH)\libc.lib
+
+INCLUDES=$(SDK_INC_PATH);$(DDK_INC_PATH);
+SOURCES=native.c
+
+UMTYPE=console
+UMBASE=0x400000
