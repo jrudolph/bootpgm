@@ -19,59 +19,140 @@
 //======================================================================
 #include "ntddk.h" // include this for its native functions and defn's
 #include "stdio.h"
+#include "stdlib.h"
 #include "native.h"
 
 
-WCHAR KeyNameBuffer[]		= L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ComputerName";
-WCHAR KeyNameBuffer2[]		= L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ActiveComputerName";
-WCHAR Tcpip[]		= L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters";
-WCHAR ComputerNameBuffer[]	= L"ComputerName";
+
+WCHAR KeyNameBuffer[]        = L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ComputerName";
+WCHAR KeyNameBuffer2[]        = L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ActiveComputerName";
+WCHAR Tcpip[]        = L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters";
+WCHAR ComputerNameBuffer[]    = L"ComputerName";
 
 void setRegistryValue(WCHAR *keyName,WCHAR *valueName,WCHAR *value)
 {
 UNICODE_STRING KeyName, ValueName;
-	HANDLE SoftwareKeyHandle;
-	ULONG Status;
-	OBJECT_ATTRIBUTES ObjectAttributes;
-	ULONG Disposition;
+    HANDLE SoftwareKeyHandle;
+    ULONG Status;
+    OBJECT_ATTRIBUTES ObjectAttributes;
+    ULONG Disposition;
 
-	//DbgBreakPoint();
-	//
-	// Open the Software key
-	//
-	KeyName.Buffer = keyName;
-	KeyName.Length = wcslen( keyName ) *sizeof(WCHAR);
-	InitializeObjectAttributes( &ObjectAttributes, &KeyName,
-			OBJ_CASE_INSENSITIVE, NULL, NULL );
-	Status = ZwCreateKey( &SoftwareKeyHandle, KEY_ALL_ACCESS,
-					&ObjectAttributes, 0,  NULL, REG_OPTION_NON_VOLATILE,
-					&Disposition );
+    //DbgBreakPoint();
+    //
+    // Open the Software key
+    //
+    KeyName.Buffer = keyName;
+    KeyName.Length = wcslen( keyName ) *sizeof(WCHAR);
+    InitializeObjectAttributes( &ObjectAttributes, &KeyName,
+            OBJ_CASE_INSENSITIVE, NULL, NULL );
+    Status = ZwCreateKey( &SoftwareKeyHandle, KEY_ALL_ACCESS,
+                    &ObjectAttributes, 0,  NULL, REG_OPTION_NON_VOLATILE,
+                    &Disposition );
 
 
-	//
-	// Create the hidden value
-	//
-	ValueName.Buffer = valueName;
-	ValueName.Length = wcslen( valueName ) *sizeof(WCHAR);
-	Status = ZwSetValueKey( SoftwareKeyHandle, &ValueName, 0, REG_SZ,
-						value,
-						wcslen( value ) * sizeof(WCHAR) );
+    //
+    // Create the hidden value
+    //
+    ValueName.Buffer = valueName;
+    ValueName.Length = wcslen( valueName ) *sizeof(WCHAR);
+    Status = ZwSetValueKey( SoftwareKeyHandle, &ValueName, 0, REG_SZ,
+                        value,
+                        wcslen( value ) * sizeof(WCHAR) );
 
-	Status = ZwClose(SoftwareKeyHandle);
+    Status = ZwClose(SoftwareKeyHandle);
 }
 
 void setComputerName(WCHAR *computerName)
 {
-	setRegistryValue(KeyNameBuffer,ComputerNameBuffer,computerName);
-	setRegistryValue(KeyNameBuffer2,ComputerNameBuffer,computerName);
-	setRegistryValue(Tcpip,L"Hostname",computerName);
-	setRegistryValue(Tcpip,L"NV Hostname",computerName);
+    setRegistryValue(KeyNameBuffer,ComputerNameBuffer,computerName);
+    setRegistryValue(KeyNameBuffer2,ComputerNameBuffer,computerName);
+    setRegistryValue(Tcpip,L"Hostname",computerName);
+    setRegistryValue(Tcpip,L"NV Hostname",computerName);
 }
+HANDLE Heap;
+char* Message = "Hello world! I was written using the native NT API.\n";
+void openFile(WCHAR *name)
+{
+    NTSTATUS Status;
+    UNICODE_STRING UnicodeFilespec;
+    OBJECT_ATTRIBUTES ObjectAttributes;
+    HANDLE FileHandle;
+    IO_STATUS_BLOCK Iosb;
+	PWCHAR buffer;
+	PWCHAR buffer2;
+	ULONG converted;
+    ULONG MessageLength = strlen(Message);
+    wchar_t *valueName= L"\\device\\floppy0\\temp\\native2.txt";
+    //printf("Starting OSR's Native NT API Example...\n");
+    //DbgBreakPoint();
+    //
+    // Initialize a unicode string with the fully qualified path of the file
+    // that we wish to create
+    //
+//    RtlInitUnicodeString(&UnicodeFilespec, L"\\device\\floppy0\\Temp\\native.txt");
+    UnicodeFilespec.Buffer = valueName;
+    UnicodeFilespec.Length = wcslen( valueName ) *sizeof(WCHAR);
+
+    //
+    // Setup the name in an object attributes structure.
+    // Note that we create a name that is case INsensitive
+    //
+    InitializeObjectAttributes(&ObjectAttributes,           // ptr to structure
+                               &UnicodeFilespec,            // ptr to file spec
+                               OBJ_CASE_INSENSITIVE,        // attributes
+                               NULL,                        // root directory handle
+                               NULL );                      // ptr to security descriptor
+
+    //
+    // Do the create.  In this particular case, we'll have the I/O Manager
+    // make our write requests syncrhonous for our convenience.
+    //
+    Status = ZwCreateFile(&FileHandle,                      // returned file handle
+                          (GENERIC_READ | SYNCHRONIZE),    // desired access
+                          &ObjectAttributes,                // ptr to object attributes
+                          &Iosb,                            // ptr to I/O status block
+                          0,                                // allocation size
+                          FILE_ATTRIBUTE_NORMAL,            // file attributes
+                          0,                                // share access
+                          FILE_OPEN,                   // create disposition
+                          FILE_SYNCHRONOUS_IO_NONALERT,     // create options
+                          NULL,                             // ptr to extended attributes
+                          0);                               // length of ea buffer
+
+    //
+    // The file has been successfully created.  Let's try WRITING to it!
+    // Note we don't use, or need, an event handle here since we've opened
+    // the file for synchronous I/O.
+    //
+    /*Status = ZwWriteFile(FileHandle,                   // file Handle
+                         0,                            // event Handle
+                         NULL,                         // APC entry point
+                         NULL,                         // APC context
+                         &Iosb,                        // IOSB address
+                         Message,                      // ptr to data buffer
+                         MessageLength,                // length
+                         0,                            // byte offset
+                         NULL);                        // key*/
+	buffer = RtlAllocateHeap( Heap, 0, 256 );
+	Status = ZwReadFile(FileHandle,0,NULL,NULL,&Iosb,buffer,256,0,NULL);
+	buffer2 = RtlAllocateHeap( Heap, 0, 500 );
+	//mbstowcs_s(&converted,buffer2,250,(char*)buffer,strlen((char*)buffer));
+	((char*)buffer)[Iosb.Information]=0;
+	mbstowcs(buffer2,(char*)buffer,Iosb.Information+1);
+	setComputerName(buffer2);
+	/*RtlInitUnicodeString(&UnicodeFilespec, buffer2);
+	NtDisplayString(&UnicodeFilespec);*/
+       //
+    // Well, That's all folks!
+    //
+    Status = ZwClose(FileHandle);
+}
+
 
 //
 // Our heap
 //
-HANDLE Heap;
+
 //----------------------------------------------------------------------
 //
 // NtProcessStartup
@@ -111,18 +192,19 @@ void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
     //
     stringBuffer = RtlAllocateHeap( Heap, 0, 256 );
     swprintf( stringBuffer, L"\n%s", argPtr );
-    helloWorld.Buffer = L"das ist der neueste test";
-    helloWorld.Length = wcslen( L"das ist der neueste test" ) * sizeof(WCHAR);
+    helloWorld.Buffer = L"das ist der allerneueste test";
+    helloWorld.Length = wcslen( L"das ist der allerneueste test" ) * sizeof(WCHAR);
     helloWorld.MaximumLength = helloWorld.Length + sizeof(WCHAR);
     NtDisplayString( &helloWorld );
-	
+
     setComputerName(L"letzter\0\0");
+    openFile(NULL);
     //
     // Free heap
     //
     RtlFreeHeap( Heap, 0, stringBuffer );
-    
-    
+
+
 
     //
     // Terminate
