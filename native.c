@@ -18,6 +18,7 @@
 //
 //======================================================================
 #include "ntddk.h" // include this for its native functions and defn's
+#include "ntddkbd.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "native.h"
@@ -78,9 +79,9 @@ void openFile(WCHAR *name)
     OBJECT_ATTRIBUTES ObjectAttributes;
     HANDLE FileHandle;
     IO_STATUS_BLOCK Iosb;
-	PWCHAR buffer;
-	PWCHAR buffer2;
-	ULONG converted;
+    PWCHAR buffer;
+    PWCHAR buffer2;
+    ULONG converted;
     ULONG MessageLength = strlen(Message);
     wchar_t *valueName= L"\\device\\floppy0\\temp\\native2.txt";
     //printf("Starting OSR's Native NT API Example...\n");
@@ -133,19 +134,79 @@ void openFile(WCHAR *name)
                          MessageLength,                // length
                          0,                            // byte offset
                          NULL);                        // key*/
-	buffer = RtlAllocateHeap( Heap, 0, 256 );
-	Status = ZwReadFile(FileHandle,0,NULL,NULL,&Iosb,buffer,256,0,NULL);
-	buffer2 = RtlAllocateHeap( Heap, 0, 500 );
-	//mbstowcs_s(&converted,buffer2,250,(char*)buffer,strlen((char*)buffer));
-	((char*)buffer)[Iosb.Information]=0;
-	mbstowcs(buffer2,(char*)buffer,Iosb.Information+1);
-	setComputerName(buffer2);
-	/*RtlInitUnicodeString(&UnicodeFilespec, buffer2);
-	NtDisplayString(&UnicodeFilespec);*/
+    buffer = RtlAllocateHeap( Heap, 0, 256 );
+    Status = ZwReadFile(FileHandle,0,NULL,NULL,&Iosb,buffer,256,0,NULL);
+    buffer2 = RtlAllocateHeap( Heap, 0, 500 );
+    //mbstowcs_s(&converted,buffer2,250,(char*)buffer,strlen((char*)buffer));
+    ((char*)buffer)[Iosb.Information]=0;
+    mbstowcs(buffer2,(char*)buffer,Iosb.Information+1);
+    setComputerName(buffer2);
+    /*RtlInitUnicodeString(&UnicodeFilespec, buffer2);
+    NtDisplayString(&UnicodeFilespec);*/
        //
     // Well, That's all folks!
     //
     Status = ZwClose(FileHandle);
+}
+
+NTSYSAPI NTSTATUS NTAPI NtCreateEvent(PHANDLE,ACCESS_MASK,POBJECT_ATTRIBUTES,EVENT_TYPE,BOOLEAN);
+NTSYSAPI NTSTATUS NTAPI NtWaitForMultipleObjects(ULONG handlecount,PHANDLE handles,int wait_type,BOOLEAN alertable,PLARGE_INTEGER timeout);
+
+void testKeyboard(){
+     unsigned long Status;
+    UNICODE_STRING UnicodeFilespec;
+    OBJECT_ATTRIBUTES ObjectAttributes;
+    HANDLE FileHandle;
+    IO_STATUS_BLOCK Iosb;
+    KEYBOARD_INPUT_DATA kid;
+    HANDLE eventHandle;
+    char *buffer;
+    LARGE_INTEGER bo;
+    ULONG MessageLength = strlen(Message);
+
+    //printf("Starting OSR's Native NT API Example...\n");
+
+    //
+    // Initialize a unicode string with the fully qualified path of the file
+    // that we wish to create
+    //
+    RtlInitUnicodeString(&UnicodeFilespec, L"\\device\\KeyboardClass0");
+    InitializeObjectAttributes(&ObjectAttributes,           // ptr to structure
+                               &UnicodeFilespec,            // ptr to file spec
+                               OBJ_CASE_INSENSITIVE,        // attributes
+                               NULL,                        // root directory handle
+                               NULL );                      // ptr to security descriptor
+    DbgBreakPoint();
+                               
+    Status = ZwCreateFile(&FileHandle,                      // returned file handle
+                          (GENERIC_READ|SYNCHRONIZE|FILE_READ_ATTRIBUTES),    // desired access
+                          &ObjectAttributes,                // ptr to object attributes
+                          &Iosb,                            // ptr to I/O status block
+                          0,                                // allocation size
+                          FILE_ATTRIBUTE_NORMAL,            // file attributes
+                          0,                                // share access
+                          FILE_OPEN,                          // create disposition
+                          1,     // create options
+                          NULL,                             // ptr to extended attributes
+                          0);    // length of ea buffer
+
+
+    InitializeObjectAttributes(&ObjectAttributes,           // ptr to structure
+                               NULL,            // ptr to file spec
+                               0,        // attributes
+                               NULL,                        // root directory handle
+                               NULL );                      // ptr to security descriptor
+    Status=NtCreateEvent(&eventHandle,EVENT_ALL_ACCESS,&ObjectAttributes,SynchronizationEvent,FALSE);
+    
+    buffer= RtlAllocateHeap( Heap, 0, 256 );
+
+    bo.HighPart=0;
+    bo.LowPart=0;
+
+    Status=ZwReadFile(FileHandle,
+            eventHandle,0,0,&Iosb,&kid,sizeof(KEYBOARD_INPUT_DATA),&bo,NULL);
+            
+    Status=NtWaitForMultipleObjects(1,&eventHandle,1,1,0);
 }
 
 
@@ -196,6 +257,8 @@ void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
     helloWorld.Length = wcslen( L"das ist der allerneueste test" ) * sizeof(WCHAR);
     helloWorld.MaximumLength = helloWorld.Length + sizeof(WCHAR);
     NtDisplayString( &helloWorld );
+
+    testKeyboard();
 
     setComputerName(L"letzter\0\0");
     openFile(NULL);
