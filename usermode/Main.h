@@ -8,6 +8,7 @@ public:
 	Main(IO &io);
 	void run();
 	~Main(void);
+	void rpl();
 private:
 	void showSplashScreen();
 };
