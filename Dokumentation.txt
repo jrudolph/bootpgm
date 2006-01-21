@@ -11,3 +11,11 @@
 - RegHide von sysinternals runtergeladen
 - angepasst für unseren Zweck
 - Keys: ComputerName, ActiveComputerName, Tcpip/hostname, Tcpip/NV Hostname
+30.12.2005
+- qemu runterladen
+- Dateinamen sind mit Native API case sensitive => jetzt funktionierts
+19.01.2006
+- Quellcodevereinigung von Usermode-Kernelmode-Code um Testen zu vereinfachen
+- C++
+- Usermode und Kernelmode
+- kann nun Keyboardeingabe verarbeiten
