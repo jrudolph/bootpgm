@@ -10,6 +10,7 @@
 //
 //======================================================================
 
+extern "C"{
 //
 // Environment information, which includes command line and
 // image file name
@@ -99,3 +100,10 @@ RtlFreeHeap(
 	    ULONG Flags,
 	    PVOID Address
 	    );
+
+NTSYSAPI NTSTATUS NTAPI NtCreateEvent(PHANDLE,ACCESS_MASK,POBJECT_ATTRIBUTES,EVENT_TYPE,BOOLEAN);
+NTSYSAPI NTSTATUS NTAPI NtWaitForMultipleObjects(ULONG handlecount,PHANDLE handles,int wait_type,BOOLEAN alertable,PLARGE_INTEGER timeout);
+
+
+} // extern "C" end
+
