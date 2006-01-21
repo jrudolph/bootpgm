@@ -17,6 +17,10 @@ public:
 	{
 		return "Usermode IO";
 	}
+	void *malloc(unsigned int length)
+	{
+		return new char[length];
+	}
 };
 
 int __cdecl main(int argc, _TCHAR* argv[])
