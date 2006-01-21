@@ -2,7 +2,10 @@ TARGETNAME=native
 TARGETPATH=$(BASEDIR)\obj
 TARGETTYPE=PROGRAM
 
-INCLUDES=$(SDK_INC_PATH);$(DDK_INC_PATH);
-SOURCES=usermode-registry.cpp \
-	native.c	
-	
+TARGETLIBS=\
+        $(DDK_LIB_PATH)\ntdll.lib \
+        Z:\WINDDK\2600.1106\obj\i386\test.lib
+
+INCLUDES=$(SDK_INC_PATH);$(DDK_INC_PATH);..\usermode
+
+SOURCES=kernelmode.cpp
