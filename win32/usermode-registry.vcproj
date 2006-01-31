@@ -287,16 +287,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\usermode.cpp"
+				RelativePath=".\win32.cpp"
 				>
-				<FileConfiguration
-					Name="Library|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter

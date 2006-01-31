@@ -10,6 +10,8 @@
 //
 //======================================================================
 
+#pragma once
+
 extern "C"{
 //
 // Environment information, which includes command line and

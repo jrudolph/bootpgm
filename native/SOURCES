@@ -12,4 +12,4 @@ TARGETLIBS=\
 
 INCLUDES=$(SDK_INC_PATH);$(DDK_INC_PATH);..\win32
 
-SOURCES=native.cpp
+SOURCES=  native.cpp

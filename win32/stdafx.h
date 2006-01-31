@@ -26,6 +26,6 @@ namespace NT {
 }
 
 using namespace NT;
-#include "../kernelmode/native.h"
+#include "../native/native.h"
 
 // TODO: reference additional headers your program requires here
