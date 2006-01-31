@@ -103,7 +103,26 @@ RtlFreeHeap(
 
 NTSYSAPI NTSTATUS NTAPI NtCreateEvent(PHANDLE,ACCESS_MASK,POBJECT_ATTRIBUTES,EVENT_TYPE,BOOLEAN);
 NTSYSAPI NTSTATUS NTAPI NtWaitForMultipleObjects(ULONG handlecount,PHANDLE handles,int wait_type,BOOLEAN alertable,PLARGE_INTEGER timeout);
+NTSYSAPI 
+NTSTATUS
+NTAPI
 
+LdrGetDllHandle(
 
+int pwPath , int Unused , PUNICODE_STRING ModuleFileName, PHANDLE pHModule ); 
+
+NTSYSAPI 
+NTSTATUS
+NTAPI
+
+LdrGetProcedureAddress(
+
+HANDLE ModuleHandle, PANSI_STRING FunctionName , int Oridinal , PVOID *FunctionAddress ); 
+NTSYSAPI 
+NTSTATUS
+NTAPI
+
+LdrLoadDll(
+IN PWCHAR PathToFile OPTIONAL, IN ULONG Flags OPTIONAL, IN PUNICODE_STRING ModuleFileName, OUT PHANDLE ModuleHandle ); 
 } // extern "C" end
 

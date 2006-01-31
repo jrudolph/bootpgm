@@ -19,6 +19,11 @@ char shiftkeys[]={0,0,'!','\"','§','$','%','&','/','(',')','=','?','`',0/*Backsp
 			,'Y','X','C','V','B','N','M',';',':','_',0/*right shift*/ //44-54
 			,'*'/*num*/,0/*left alt*/,' ',0/*caps lock*/};
 
+void (__stdcall*InbvSetTextColor) (
+    ULONG Color
+);
+
+
 IO *myIO=0;
 
 void fatal(char *msg)
@@ -158,12 +163,7 @@ public:
 	}
 	void print(char *buffer)
 	{
-		unsigned int size=strlen(buffer)+1;
-		wchar_t *buffer2=(wchar_t*)malloc(sizeof(wchar_t)*size);
-		mbstowcs(buffer2,(char*)buffer,size);
-		
-		UNICODE_STRING UnicodeFilespec;
-		RtlInitUnicodeString(&UnicodeFilespec, buffer2);
+		UNICODE_STRING UnicodeFilespec=getUnicodeString(buffer);
 
 		NtDisplayString(&UnicodeFilespec);
 	}
@@ -227,16 +227,110 @@ public:
 		}
 		println("Keyboardtest beendet");
 	}
+	void setColor(unsigned int color)
+	{
+		DbgBreakPoint();
+		InbvSetTextColor(color);
+	}
 };
 
 extern "C"
 int __cdecl _purecall()
 {
-DbgBreakPoint();
-return 0;
+	DbgBreakPoint();
+	return 0;
 }
 
+void setColor(IO &io,char *args)
+{
+	unsigned int i=0;
+	sscanf(args,"%u",&i);
+	((KernelmodeIO&)io).setColor(i);
+}
 
+void getdllhandle(IO &io,char *args)
+{
+	int size=strlen(args);
+	if (size<2)
+	{
+		io.println("need at least 1 argument");
+		return;
+	}
+	args++;
+
+	io.print("Trying to find ");
+	io.print(args);
+	io.println("...");
+
+	HANDLE h=0;
+
+	NTSTATUS Status=LdrGetDllHandle(0,0,&io.getUnicodeString(args),&h);
+	char *buffer=(char*)io.malloc(100);
+	_snprintf(buffer,99,"%x 0x%x %p",Status,h,h);
+
+	io.println(buffer);
+}
+
+void loaddll(IO &io,char *args)
+{
+	int size=strlen(args);
+	if (size<2)
+	{
+		io.println("need at least 1 argument");
+		return;
+	}
+	args++;
+
+	io.print("Trying to load ");
+	io.print(args);
+	io.println("...");
+
+	HANDLE h=0;
+
+	NTSTATUS Status=LdrLoadDll(0,0,&io.getUnicodeString(args),&h);
+	char *buffer=(char*)io.malloc(100);
+	_snprintf(buffer,99,"%x 0x%x %p",Status,h,h);
+
+	io.println(buffer);
+}
+
+void getproc(IO &io,char *args)
+{
+	int size=strlen(args);
+	if (size<2)
+	{
+		io.println("need at least 1 argument");
+		return;
+	}
+	args++;
+
+	int addr;
+	char name[81];
+	ANSI_STRING as;
+	sscanf(args,"%x %80s",&addr,name);
+
+	io.print("Trying to find Proc:");
+	io.print(name);
+	io.println("...");
+
+	as.Buffer=name;
+	as.Length=strlen(name);
+
+	HANDLE h=0;
+
+	NTSTATUS Status=LdrGetProcedureAddress((HANDLE)addr,&as,0,(void**)&InbvSetTextColor);
+	char *buffer=(char*)io.malloc(100);
+	_snprintf(buffer,99,"%x 0x%x %p",Status,InbvSetTextColor,InbvSetTextColor);
+
+	io.println(buffer);
+}
+
+void debugBreak(IO &io,char *args)
+{
+	DbgBreakPoint();
+}
+
+void setCompnameFromFile(IO &io,char *args);
 
 extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
 {
@@ -247,6 +341,12 @@ extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
 	//io.testKeyboard();
 
 	Main main(io);
+
+	main.addCommand("loaddll",loaddll);
+	main.addCommand("dll",getdllhandle);
+	main.addCommand("break",debugBreak);
+	main.addCommand("setComputername",setCompnameFromFile);
+	main.addCommand("getproc",getproc);
 	main.run();	
 
 	NtTerminateProcess( NtCurrentProcess(), 0 );

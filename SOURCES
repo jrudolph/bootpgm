@@ -3,8 +3,12 @@ TARGETPATH=$(BASEDIR)\obj
 TARGETTYPE=PROGRAM
 
 TARGETLIBS=\
-        $(DDK_LIB_PATH)\ntdll.lib \
-        Z:\WINDDK\2600.1106\obj\i386\test.lib
+        Z:\WINDDK\2600.1106\obj\i386\common.lib\
+        $(DDK_LIB_PATH)\ntdll.lib\
+        $(DDK_LIB_PATH)\nt.lib
+#        $(DDK_LIB_PATH)\ntoskrnl.lib 
+#        $(DDK_LIB_PATH)\libc.lib
+        
 
 INCLUDES=$(SDK_INC_PATH);$(DDK_INC_PATH);..\usermode
 
