@@ -1,15 +1,15 @@
-TARGETNAME=native
-TARGETPATH=$(BASEDIR)\obj
+TARGETNAME=bootpgm
+TARGETPATH=..\obj
 TARGETTYPE=PROGRAM
 
 TARGETLIBS=\
-        Z:\WINDDK\2600.1106\obj\i386\common.lib\
+        ..\obj\i386\common.lib\
         $(DDK_LIB_PATH)\ntdll.lib\
         $(DDK_LIB_PATH)\nt.lib
 #        $(DDK_LIB_PATH)\ntoskrnl.lib 
 #        $(DDK_LIB_PATH)\libc.lib
         
 
-INCLUDES=$(SDK_INC_PATH);$(DDK_INC_PATH);..\usermode
+INCLUDES=$(SDK_INC_PATH);$(DDK_INC_PATH);..\win32
 
-SOURCES=kernelmode.cpp
+SOURCES=native.cpp

@@ -1,5 +1,5 @@
 TARGETNAME=common
-TARGETPATH=$(BASEDIR)\obj
+TARGETPATH=../obj
 TARGETTYPE=LIBRARY
 #TARGETTYPE=PROGRAM
 
@@ -13,7 +13,7 @@ SOURCES=io.cpp \
         main.cpp \
         stdafx.cpp \
         computername.cpp \
-        usermode.cpp
+        win32.cpp
 
 #UMTYPE=console
 #UMBASE=0x400000
