@@ -1,12 +1,12 @@
-TARGETNAME=test
+TARGETNAME=common
 TARGETPATH=$(BASEDIR)\obj
 TARGETTYPE=LIBRARY
+#TARGETTYPE=PROGRAM
 
 TARGETLIBS=\
-        $(DDK_LIB_PATH)\kernel32.lib \
-        $(DDK_LIB_PATH)\user32.lib \
-        $(DDK_LIB_PATH)\libc.lib \
         $(DDK_LIB_PATH)\ntdll.lib
+#        $(DDK_LIB_PATH)\libc.lib \
+
 
 INCLUDES=$(SDK_INC_PATH);$(DDK_INC_PATH);
 SOURCES=io.cpp \
@@ -15,5 +15,5 @@ SOURCES=io.cpp \
         computername.cpp \
         usermode.cpp
 
-UMTYPE=console
-UMBASE=0x400000
+#UMTYPE=console
+#UMBASE=0x400000

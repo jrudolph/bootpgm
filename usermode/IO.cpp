@@ -31,3 +31,31 @@ void IO::readln(char *buffer,unsigned int length)
 	buffer[curlength-1]=0;
 	//NT::DbgPrint("readln beendet\n");
 }
+NT::UNICODE_STRING IO::getUnicodeString(char *buffer)
+{
+	unsigned int size=strlen(buffer)+1;
+	wchar_t *buffer2=(wchar_t*)malloc(sizeof(wchar_t)*size);
+	mbstowcs(buffer2,(char*)buffer,size);
+	
+	NT::UNICODE_STRING UnicodeFilespec;
+	RtlInitUnicodeString(&UnicodeFilespec, buffer2);
+
+	return UnicodeFilespec;
+}
+
+void IO::handleStatus(NT::NTSTATUS status,char *place,char *file,char *line){
+	if (status!=STATUS_SUCCESS)
+	{
+		print(file);
+		print("(");
+		print(line);
+		println("):");
+		print("\tFehler: ");
+		println(place);
+	}
+	else
+	{
+		print("Erfolg: ");
+		println(place);
+	}
+}

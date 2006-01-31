@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <string.h>
+#include <stdlib.h>
 
 namespace NT {
 	extern "C" {
@@ -23,5 +24,8 @@ namespace NT {
 #pragma warning(default: 4005)
 	}
 }
+
+using namespace NT;
+#include "../kernelmode/native.h"
 
 // TODO: reference additional headers your program requires here
