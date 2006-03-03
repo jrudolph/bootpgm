@@ -1,12 +1,50 @@
 #include "StdAfx.h"
 #include "Main.h"
 
-Main::Main(IO &io):io(io),funcc(0)
+Main *mainSingleton=NULL;
+
+void showCmds(IO &io,char *args)
 {
+	if (mainSingleton!=NULL)
+	{
+		io.println("Available commands:");
+		for (int i=0;i<mainSingleton->funcc;i++)
+		{
+			io.println(mainSingleton->commands[i].name);
+		}
+	}
+}
+
+void showArgs(IO &io,char *args)
+{
+	if (mainSingleton!=NULL)
+	{
+		io.println("Commandline arguments:");
+		for (int i=0;i<mainSingleton->argc;i++)
+		{
+			io.println((char*)mainSingleton->argv[i]);
+		}
+	}
+}
+
+Main::Main(IO &io,int argc,char** argv):io(io),funcc(0),argv(argv),argc(argc)
+{
+	addCommand("showCmds",showCmds);
+	addCommand("showArgs",showArgs);
+	if (mainSingleton!=NULL)
+	{
+		io.println("Error: Main may be instantiated only once");
+		return;
+	}
+	else
+	{
+		mainSingleton=this;
+	}
 }
 
 Main::~Main(void)
 {
+	mainSingleton=NULL;
 }
 
 void Main::run()

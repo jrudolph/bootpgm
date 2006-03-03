@@ -15,6 +15,7 @@ public:
 	~IO(void);
 	virtual char *getVersion()=0;
 	void readln(char *buffer,unsigned int length);
+	wchar_t *char2wchar(char *buffer);
 	NT::UNICODE_STRING getUnicodeString(char *buffer);
 	void handleStatus(NTSTATUS status, char *function, char *file, char *line);
 };

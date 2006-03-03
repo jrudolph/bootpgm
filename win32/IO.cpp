@@ -31,11 +31,17 @@ void IO::readln(char *buffer,unsigned int length)
 	buffer[curlength-1]=0;
 	//NT::DbgPrint("readln beendet\n");
 }
-NT::UNICODE_STRING IO::getUnicodeString(char *buffer)
+wchar_t *IO::char2wchar(char *buffer)
 {
 	unsigned int size=strlen(buffer)+1;
 	wchar_t *buffer2=(wchar_t*)malloc(sizeof(wchar_t)*size);
 	mbstowcs(buffer2,(char*)buffer,size);
+	
+	return buffer2;
+}
+NT::UNICODE_STRING IO::getUnicodeString(char *buffer)
+{
+	wchar_t *buffer2=char2wchar(buffer);
 	
 	NT::UNICODE_STRING UnicodeFilespec;
 	RtlInitUnicodeString(&UnicodeFilespec, buffer2);

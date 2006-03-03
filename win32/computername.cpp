@@ -29,8 +29,6 @@ void setRegistryValue(IO &io,WCHAR *keyName,WCHAR *valueName,WCHAR *value)
 	
 	CHECK_STATUS(Status,Öffnen des Schlüssels)
 
-	return;
-
 	NT::RtlInitUnicodeString(&ValueName,valueName);
     
     Status = ZwSetValueKey( SoftwareKeyHandle, &ValueName, 0, REG_SZ,
@@ -51,6 +49,18 @@ void setComputerName(IO &io,WCHAR *computerName)
     setRegistryValue(io,KeyNameBuffer2,ComputerNameBuffer,computerName);
     setRegistryValue(io,Tcpip,L"Hostname",computerName);
     setRegistryValue(io,Tcpip,L"NV Hostname",computerName);
+}
+
+void setComputerNameCmd(IO &io,char *args)
+{
+	if (strlen(args)<2)
+	{
+		io.println("Syntax: setComputerName <newComputerName>");
+		return;
+	}
+	io.print("Setting Computer Name to: ");
+	io.println(args+1);
+	setComputerName(io,io.char2wchar(args+1));
 }
 
 void setCompnameFromFile(IO &io,char *args)
@@ -88,12 +98,15 @@ void setCompnameFromFile(IO &io,char *args)
 
 	buffer = (PWCHAR)io.malloc(256);//RtlAllocateHeap( Heap, 0, 256 );
     Status = ZwReadFile(FileHandle,0,NULL,NULL,&Iosb,buffer,256,0,NULL);
-    
+    ((char*)buffer)[Iosb.Information]=0;
+
 	CHECK_STATUS(Status,Lesen des Computernamens);
 	
 	buffer2 = (PWCHAR)io.malloc(500);//RtlAllocateHeap( Heap, 0, 500 );
     
-    ((char*)buffer)[Iosb.Information]=0;
+	io.print("Computername aus Datei: ");
+	io.println((char*)buffer);
+    
     mbstowcs(buffer2,(char*)buffer,Iosb.Information+1);
     setComputerName(io,buffer2);
     
