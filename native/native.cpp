@@ -331,6 +331,7 @@ void debugBreak(IO &io,char *args)
 }
 
 void setCompnameFromFile(IO &io,char *args);
+void setComputerNameCmd(IO &io,char *args);
 
 extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
 {
@@ -339,14 +340,22 @@ extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
 
 	//io.println("Keyboardtest:");
 	//io.testKeyboard();
+	
+	UNICODE_STRING us=Argument->Environment->CommandLine;
+	char *argv=(char*)io.malloc(us.Length+1);
+	argv[us.Length]=0;
+	wcstombs(argv,us.Buffer,us.Length);
+	char *arguments[1];
+	arguments[0]=argv;
 
-	Main main(io);
+	Main main(io,1,arguments);
 
 	main.addCommand("loaddll",loaddll);
 	main.addCommand("dll",getdllhandle);
 	main.addCommand("break",debugBreak);
-	main.addCommand("setComputername",setCompnameFromFile);
+	main.addCommand("setComputerNameFromFile",setCompnameFromFile);
 	main.addCommand("getproc",getproc);
+	main.addCommand("setComputerName",setComputerNameCmd);
 	main.run();	
 
 	NtTerminateProcess( NtCurrentProcess(), 0 );
