@@ -16,6 +16,7 @@ void IO::println(char *buffer)
 
 void IO::readln(char *buffer,unsigned int length)
 {
+	debugout("readln gestartet");
 	//NT::DbgPrint("readln startet\n");
 	unsigned int curlength=0;
 	char curChar[2];
@@ -29,6 +30,8 @@ void IO::readln(char *buffer,unsigned int length)
 		curlength++;
 	}
 	buffer[curlength-1]=0;
+
+	debugout("readln beendet");
 	//NT::DbgPrint("readln beendet\n");
 }
 wchar_t *IO::char2wchar(char *buffer)
@@ -36,6 +39,7 @@ wchar_t *IO::char2wchar(char *buffer)
 	unsigned int size=strlen(buffer)+1;
 	wchar_t *buffer2=(wchar_t*)malloc(sizeof(wchar_t)*size);
 	mbstowcs(buffer2,(char*)buffer,size);
+	buffer2[size-1]=0;
 	
 	return buffer2;
 }
@@ -58,10 +62,18 @@ void IO::handleStatus(NT::NTSTATUS status,char *place,char *file,char *line){
 		println("):");
 		print("\tFehler: ");
 		println(place);
+		NT::DbgPrint("Fehler (Datei: %s \tZeile: %s): %s, %d\n",file,line,place,status);
 	}
 	else
 	{
 		print("Erfolg: ");
 		println(place);
+		NT::DbgPrint("Erfolg: %s\n",place);
 	}
+}
+inline void IO::debugout(char *string)
+{
+	/*print("[debug] ");
+	println(string);
+	NT::DbgPrint("[bootpgm] %s\n",string);*/
 }

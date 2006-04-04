@@ -251,6 +251,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\directory.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\IO.cpp"
 				>
 			</File>
@@ -297,6 +301,14 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\directory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\file.h"
+				>
+			</File>
+			<File
 				RelativePath=".\IO.h"
 				>
 			</File>
@@ -306,6 +318,10 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\string-tools.h"
 				>
 			</File>
 		</Filter>

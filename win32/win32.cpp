@@ -20,6 +20,10 @@ public:
 	{
 		return new char[length];
 	}
+	void free(void *buffer)
+	{
+		delete buffer;
+	}
 };
 
 void wurst(IO &io,char *cmd)
@@ -52,16 +56,22 @@ void findAddress(IO &io,char *args)
 }
 
 void setCompnameFromFile(IO &io,char *args);
+void initFileTools(IO *io);
+
+void testStringFunctions(IO &io,char *args);
 
 int __cdecl main(int argc, _TCHAR* argv[])
 {
 	UsermodeIO io;
 	Main main(io,argc,(char**)argv);
 
+	initFileTools(&io);
+
 	main.addCommand("test",wurst);
 	main.addCommand("findAddress",findAddress);
 
 	main.addCommand("setComputername",setCompnameFromFile);
+	main.addCommand("testString",testStringFunctions);
 
 	main.run();
 }

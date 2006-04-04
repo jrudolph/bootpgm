@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "io.h"
+#include "main.h"
 
 WCHAR KeyNameBuffer[]        = L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ComputerName";
 WCHAR KeyNameBuffer2[]        = L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ActiveComputerName";
@@ -33,7 +34,7 @@ void setRegistryValue(IO &io,WCHAR *keyName,WCHAR *valueName,WCHAR *value)
     
     Status = ZwSetValueKey( SoftwareKeyHandle, &ValueName, 0, REG_SZ,
                         value,
-                        wcslen( value ) * sizeof(WCHAR) );
+                        (wcslen( value )+1) * sizeof(WCHAR) );
 
 	CHECK_STATUS(Status,Setzen des Schlüssels);
 
@@ -73,7 +74,13 @@ void setCompnameFromFile(IO &io,char *args)
     PWCHAR buffer;
     PWCHAR buffer2;
     ULONG converted;
-    wchar_t *valueName= L"\\device\\floppy0\\compname.txt";
+	wchar_t *valueName;
+
+	if (mainSingleton->getArgc()>1)
+		valueName=io.char2wchar(mainSingleton->getArgs()[1]);
+	else 
+		valueName= L"\\device\\floppy0\\compname.txt";
+
 	RtlInitUnicodeString(&UnicodeFilespec,valueName);
 
     InitializeObjectAttributes(&ObjectAttributes,           // ptr to structure
