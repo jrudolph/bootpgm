@@ -33,8 +33,11 @@ void IO::readln(char *buffer,unsigned int length)
 		}
 		else
 		{
-			curlength--;
-			handleCharEcho(curChar[0],buffer,curlength);
+			if (curlength>0)
+			{
+				curlength--;
+				handleCharEcho(curChar[0],buffer,curlength);
+			}
 		}
 	}
 	buffer[curlength-1]=0;
