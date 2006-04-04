@@ -124,10 +124,11 @@ public:
 	}
 	char getChar()
 	{
+		debugout("getChar startet");
 		//DbgPrint("getChar startet\n");
 		KEYBOARD_INPUT_DATA kid;
 		
-		int chr;
+		int chr=0;
 
 		do
 		{
@@ -136,9 +137,12 @@ public:
 			{
 				//_snprintf(buffer,99,"Fehler beim Tastaturlesen: 0x%x",Status);
 				println("Fehler beim Tastaturlesen");
+				debugout("Fehler beim Tastatur lesen");
 			}
 			else
 			{
+				debugout("Taste empfangen");
+
 				updateKeyboardStatus(kid);
 
 				if (((kid.Flags&KEY_BREAK)==0)&&kid.MakeCode<58&&kid.MakeCode>0)
@@ -154,12 +158,17 @@ public:
 			}
 		}
 		while(chr==0);
+		debugout("getChar Ende");
 
 		return (char)chr;
 	}
 	void *malloc(unsigned int size)
 	{
 		return RtlAllocateHeap( Heap, 0, size);
+	}
+	void free(void *buffer)
+	{
+		RtlFreeHeap(Heap,0,buffer);
 	}
 	void print(char *buffer)
 	{
@@ -169,10 +178,10 @@ public:
 	}
 	char *getVersion()
 	{
-		return "Kernelmode IO";
+		return "Kernelmode IO Revision: $Rev$";
 	}
 
-	NTSTATUS waitForKeyboardInput(unsigned long time,KEYBOARD_INPUT_DATA *kid)
+	NTSTATUS waitForKeyboardInput(__int64 time,KEYBOARD_INPUT_DATA *kid)
 	{
 		LARGE_INTEGER bo;
 		LARGE_INTEGER litime;
@@ -182,31 +191,52 @@ public:
 		bo.HighPart=0;
 		bo.LowPart=0;
 
+		debugout("wFKI: vor ZwReadFile");
+
 		Status=ZwReadFile(Keyboard,
             KeyboardEvent,0,0,&Iosb,kid,sizeof(KEYBOARD_INPUT_DATA),&bo,NULL);
 
-		litime.HighPart=0;
-		litime.LowPart=time;
+		debugout("wFKI: nach ZwReadFile");
+		/*litime.HighPart=0;
+		litime.LowPart=time;*/
 		
 		PLARGE_INTEGER pli=NULL;
 
 		if (time!=0)
-			pli=&litime;
+			pli=(PLARGE_INTEGER)&time;
 
 		if (Status==STATUS_PENDING)
 		{
+			debugout("wFKI: vor WaitFor...");
+
 			Status=NtWaitForMultipleObjects(1,&KeyboardEvent,1,1,pli);
+
+			debugout("wFKI: nach WaitFor...");
+
 			if (Status!=STATUS_SUCCESS)
+			{
+				NtCancelIoFile(Keyboard,&Iosb);
 				return Status;
+			}
 		}
 		return STATUS_SUCCESS;
 	}
-
+	void printKeyboardData(KEYBOARD_INPUT_DATA kid)
+	{
+		char buffer[100];
+		int keyMake=kid.Flags&KEY_MAKE;
+		int keyBreak=kid.Flags&KEY_BREAK;
+		int e0=kid.Flags&KEY_E0;
+		int e1=kid.Flags&KEY_E1;
+		_snprintf(buffer,99,"Key: Code: %d\tMake: %d\tBreak: %d\te0: %d\te1: %d\n",kid.MakeCode,keyMake,keyBreak,e0,e1);
+		debugout(buffer);
+	}
 	void testKeyboard()
 	{
 		KEYBOARD_INPUT_DATA kid;
 		kid.MakeCode=0;
-		char *buffer=(char*)malloc(100);
+		//char *buffer=(char*)malloc(100);
+		char buffer[100];
 		while(kid.MakeCode!=1)
 		{
 			NTSTATUS Status=waitForKeyboardInput(0,&kid);
@@ -217,12 +247,7 @@ public:
 			}
 			else
 			{
-				int keyMake=kid.Flags&KEY_MAKE;
-				int keyBreak=kid.Flags&KEY_BREAK;
-				int e0=kid.Flags&KEY_E0;
-				int e1=kid.Flags&KEY_E1;
-				_snprintf(buffer,99,"Key: Code: %d\tMake: %d\tBreak: %d\te0: %d\te1: %d",kid.MakeCode,keyMake,keyBreak,e0,e1);
-				println(buffer);
+				printKeyboardData(kid);
 			}
 		}
 		println("Keyboardtest beendet");
@@ -231,6 +256,11 @@ public:
 	{
 		DbgBreakPoint();
 		InbvSetTextColor(color);
+	}
+	void resetKeyboard()
+	{
+		debugout("Clearing Event");
+		NtClearEvent(KeyboardEvent);
 	}
 };
 
@@ -333,6 +363,103 @@ void debugBreak(IO &io,char *args)
 void setCompnameFromFile(IO &io,char *args);
 void setComputerNameCmd(IO &io,char *args);
 
+
+
+void myitoa(int i,char *buffer)
+{
+	int length=0;
+	if (i==0)
+	{
+		buffer[0]='0';
+		length=1;
+	}
+	else
+	{
+		char buffer2[20];
+		while (i>0)
+		{
+			buffer2[length]='0'+i%10;
+			i/=10;
+			length++;
+		}
+		for (i=0;i<length;i++)
+		{
+			buffer[length-i-1]=buffer2[i];
+		}
+	}
+	buffer[length]=0;
+}
+
+bool keyPressedInTime(KernelmodeIO &io,__int64 time,char key)
+{
+	KEYBOARD_INPUT_DATA kid;
+	io.debugout("kPIT startet");
+	NTSTATUS status=io.waitForKeyboardInput(time,&kid);
+	io.debugout("kPIT wFKI fertig");
+	//CHECK_STATUS(status,wFKI-from-kPIT)
+	if (status!=STATUS_SUCCESS)
+		return false;
+
+	if (((kid.Flags&KEY_BREAK)==0)&&kid.MakeCode<58&&kid.MakeCode>0)
+		if (keys[kid.MakeCode]==key)
+		{
+			io.debugout("Key pressed !!!");
+			return true;
+		}
+		else
+			io.debugout("Wrong key pressed");
+	else
+		io.printKeyboardData(kid);
+	
+	return false;
+}
+
+bool startupWithKeyInner(KernelmodeIO &io,int maxtime,char key) //maxtime in seconds
+{
+	io.print("System starting up: ");
+
+	for (int i=maxtime;i>=0;i--)
+	{
+		char buffer[2];
+		myitoa(i,buffer);
+		io.print(buffer);
+		io.print(" ");
+		
+		if (keyPressedInTime(io,-3333000,key))
+			return true;
+		else
+			io.print(".");
+
+		if (keyPressedInTime(io,-3333000,key))
+			return true;
+		else
+			io.print(".");
+
+		if (keyPressedInTime(io,-3333000,key))
+			return true;
+		else
+			io.print(" ");
+	}
+	return false;
+}
+void clearKeyboardPipe(KernelmodeIO &io)
+{
+	io.debugout("Starting clearKeyboardPipe");
+	io.resetKeyboard();
+	KEYBOARD_INPUT_DATA kid;
+	while (io.waitForKeyboardInput(-1,&kid)==STATUS_SUCCESS);
+	io.resetKeyboard();
+	io.debugout("Ending clearKeyboardPipe");
+
+	
+}
+bool startupWithKey(KernelmodeIO &io,int maxtime,char key) //maxtime in seconds
+{
+	bool res=startupWithKeyInner(io,maxtime,key);
+	io.println(" ");
+	clearKeyboardPipe(io);
+	return res;
+}
 extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
 {
 	KernelmodeIO io;
@@ -340,15 +467,19 @@ extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
 
 	//io.println("Keyboardtest:");
 	//io.testKeyboard();
+	//DbgBreakPoint();
+	UNICODE_STRING *us=&Argument->Environment->CommandLine;
+	// CommandLine is !not! what it is supposed to be
+	// code in original native.c works only accidentially as expected
+	// CommandLine is what they call ImageFile
+	// the correct CommandLine comes right after the ImageFile
+	wchar_t *cmdLine=(wchar_t*)(((char*)us->Buffer)+us->MaximumLength);
 	
-	UNICODE_STRING us=Argument->Environment->CommandLine;
-	char *argv=(char*)io.malloc(us.Length+1);
-	argv[us.Length]=0;
-	wcstombs(argv,us.Buffer,us.Length);
-	char *arguments[1];
-	arguments[0]=argv;
+	char **arguments;
+	int argc;
+	arguments=split_args(io,cmdLine,&argc);
 
-	Main main(io,1,arguments);
+	Main main(io,argc,arguments);
 
 	main.addCommand("loaddll",loaddll);
 	main.addCommand("dll",getdllhandle);
@@ -356,7 +487,13 @@ extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
 	main.addCommand("setComputerNameFromFile",setCompnameFromFile);
 	main.addCommand("getproc",getproc);
 	main.addCommand("setComputerName",setComputerNameCmd);
-	main.run();	
+	
+	main.showSplashScreen();
+
+	if (startupWithKey(io,2,'v'))
+		main.rpl();
+	else
+		setCompnameFromFile(io,0);
 
 	NtTerminateProcess( NtCurrentProcess(), 0 );
 }

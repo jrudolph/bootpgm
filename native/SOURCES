@@ -6,10 +6,11 @@ TARGETLIBS=\
         ..\obj\i386\common.lib\
         $(DDK_LIB_PATH)\ntdll.lib\
         $(DDK_LIB_PATH)\nt.lib
+#        $(DDK_LIB_PATH)\libcmt.lib
 #        $(DDK_LIB_PATH)\ntoskrnl.lib 
-#        $(DDK_LIB_PATH)\libc.lib
-        
+       
 
 INCLUDES=$(SDK_INC_PATH);$(DDK_INC_PATH);..\win32
 
 SOURCES=  native.cpp
+#UMTYPE=nt
