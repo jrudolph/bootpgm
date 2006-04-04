@@ -24,6 +24,15 @@ public:
 	{
 		delete buffer;
 	}
+	void handleCharEcho(char ch,char *buffer,unsigned int length)
+	{
+		// no echo nessecary because getchar() echos
+		/*char b[2];
+		b[0]=ch;
+		b[1]=0;
+		if (ch!=8)
+			print(b);*/
+	}
 };
 
 void wurst(IO &io,char *cmd)

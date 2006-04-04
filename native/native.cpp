@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-char keys[]={0,0,'1','2','3','4','5','6','7','8','9','0','ß','´',0/*Backspace*/ //0-14
+char keys[]={0,0,'1','2','3','4','5','6','7','8','9','0','ß','´',8/*Backspace*/ //0-14
 			,0/*tab*/,'q','w','e','r','t','z','u','i','o','p','ü','+','\n'/*return*/ //15-28
 			,0/*strg*/,'a','s','d','f','g','h','j','k','l','ö','ä','^',0/*left shift*/,'#' //29-43
 			,'y','x','c','v','b','n','m',',','.','-',0/*right shift*/ //44-54
@@ -121,6 +121,25 @@ public:
 	~KernelmodeIO()
 	{
 		//RtlDestroyHeap()
+	}
+	void readln(char *buffer,unsigned int length)
+	{
+
+	}
+	void handleCharEcho(char ch,char *buffer,unsigned int length)
+	{
+		char b[2];
+		b[0]=ch;
+		b[1]=0;
+		if (ch==8)
+		{
+			println("");
+			buffer[length]=0;
+			print("> ");
+			print(buffer);
+		}
+		else
+			print(b);
 	}
 	char getChar()
 	{

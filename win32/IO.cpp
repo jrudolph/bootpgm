@@ -25,9 +25,17 @@ void IO::readln(char *buffer,unsigned int length)
 	while (curlength<length&&curChar[0]!='\n')
 	{
 		curChar[0]=getChar();
-		buffer[curlength]=curChar[0];
-		print(curChar);
-		curlength++;
+		if (curChar[0]!=8) //BACKSPACE
+		{
+			buffer[curlength]=curChar[0];
+			handleCharEcho(curChar[0],buffer,curlength);
+			curlength++;
+		}
+		else
+		{
+			curlength--;
+			handleCharEcho(curChar[0],buffer,curlength);
+		}
 	}
 	buffer[curlength-1]=0;
 

@@ -15,6 +15,7 @@ public:
 	virtual void free(void *buffer)=0;
 	~IO(void);
 	virtual char *getVersion()=0;
+	virtual void handleCharEcho(char ch,char *buffer,unsigned int length)=0;
 	void readln(char *buffer,unsigned int length);
 	wchar_t *char2wchar(char *buffer);
 	NT::UNICODE_STRING getUnicodeString(char *buffer);
