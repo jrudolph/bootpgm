@@ -88,17 +88,18 @@ void IO::handleStatus(NT::NTSTATUS status,char *place,char *file,char *line,bool
 #endif
 	if (status!=STATUS_SUCCESS)
 	{
+		print("[error]");
 		print(file);
 		print("(");
 		print(line);
 		println("):");
-		print("\tFehler: ");
+		print("[error] Fehler: ");
 		println(place);
 		NT::DbgPrint("Fehler (Datei: %s \tZeile: %s): %s, %d\n",file,line,place,status);
 	}
 	else
 	{
-		print("Erfolg: ");
+		print("[success] Erfolg: ");
 		println(place);
 		NT::DbgPrint("Erfolg: %s\n",place);
 	}

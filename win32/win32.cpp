@@ -86,6 +86,7 @@ void setCompnameFromFile(IO &io,char *args);
 void initFileTools(IO *io);
 
 void testStringFunctions(IO &io,char *args);
+void testMatcher(IO &io,char *args);
 
 int __cdecl main(int argc, _TCHAR* argv[])
 {
@@ -99,6 +100,8 @@ int __cdecl main(int argc, _TCHAR* argv[])
 
 	main.addCommand("setComputername",setCompnameFromFile);
 	main.addCommand("testString",testStringFunctions);
+
+	main.addCommand("testMatcher",testMatcher);
 
 	main.run();
 }

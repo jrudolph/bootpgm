@@ -84,6 +84,130 @@ void setComputerNameCmd(IO &io,char *args)
 
 #define RETURN_NULL_IF_STATUS_UNSUCCESSFULL if (Status!=STATUS_SUCCESS) return 0;
 
+const char whitespaces[]=" \t\n\x0B\f\r";
+
+bool isWhitespace(char c)
+{
+	for (int i=0;i<sizeof(whitespaces);i++)
+		if (whitespaces[i]==c)
+			return true;
+
+	return false;
+}
+
+bool isCapitalLetter(char c)
+{
+	return c>='A'&&c<='Z';
+}
+bool isDigit(char c)
+{
+	return c>='0'&&c<='9';
+}
+bool isSmallLetter(char c)
+{
+	return c>='a'&&c<='z';
+}
+
+bool isWordCharacter(char c)
+{
+	return isDigit(c)||isCapitalLetter(c)||isSmallLetter(c)||c=='-';
+}
+bool char_matcher(char c,char d)
+{
+	return c==d;
+}
+const char pattern[]="Computername:\\s+(\\w+)";
+
+char *parseComputerNameFile(IO &io,char *buffer,unsigned int length)
+{
+	int patternpos=0;
+	int capture_start=-1;
+	int capture_end=-1;
+	void *matcher=0;
+	char lastData=0;
+	for (unsigned int i=0;i<length;i++)
+	{
+		bool matched=true;
+		switch (pattern[patternpos])
+		{
+		case '\\':
+			patternpos++;
+			switch(pattern[patternpos])
+			{
+			case 's':
+				matcher=isWhitespace;
+				lastData=0;
+				break;
+			case 'w':
+				matcher=isWordCharacter;
+				lastData=0;
+				break;
+			}
+			break;
+		case '(':
+			capture_start=i;
+			patternpos++;
+			matcher=0;
+			continue;
+		case ')':
+			capture_end=i;
+			patternpos++;
+			matcher=0;
+			continue;
+		case '+':
+			matched=true;
+			while (matched)
+			{
+				if (lastData!=0)
+					matched=((bool(*)(char,char))matcher)(buffer[i],lastData);
+				else
+					matched=((bool(*)(char))matcher)(buffer[i]);
+
+				if (matched&&i<length)
+					i++;
+			}
+			if (i>0)
+				i--;
+			patternpos++;
+			continue;
+		default:
+			lastData=pattern[patternpos];
+			matcher=char_matcher;
+			break;
+		}
+
+		matched=false;
+		if (lastData!=0)
+			matched=((bool(*)(char,char))matcher)(buffer[i],lastData);
+		else
+			matched=((bool(*)(char))matcher)(buffer[i]);
+
+		if (matched)
+			patternpos++;
+		else
+			patternpos=0;
+	}
+	if (pattern[patternpos]==')')
+		capture_end=length;
+
+	if (capture_start!=-1&&capture_end!=-1)
+	{
+		int matchlength=capture_end-capture_start;
+		char *returnBuffer=(char*)io.malloc(matchlength+1);
+		memcpy(returnBuffer,buffer+capture_start,matchlength);
+		returnBuffer[matchlength]=0;
+		return returnBuffer;
+	}
+	else
+		return 0;
+}
+
+void testMatcher(IO &io,char *args)
+{
+	char string[]="Computername:      ";
+	char *return0=parseComputerNameFile(io,string,sizeof(string));
+}
+
 wchar_t *readComputerNameFromFile(IO &io,wchar_t *valueName)
 {
 NTSTATUS Status;
@@ -91,7 +215,7 @@ NTSTATUS Status;
     OBJECT_ATTRIBUTES ObjectAttributes;
     HANDLE FileHandle;
     IO_STATUS_BLOCK Iosb;
-    PWCHAR buffer;
+    char *buffer;
     PWCHAR buffer2;
     ULONG converted;
 
@@ -119,25 +243,39 @@ NTSTATUS Status;
 
 	RETURN_NULL_IF_STATUS_UNSUCCESSFULL
 
-	buffer = (PWCHAR)io.malloc(256);//RtlAllocateHeap( Heap, 0, 256 );
+	buffer = (char*)io.malloc(256);//RtlAllocateHeap( Heap, 0, 256 );
     Status = ZwReadFile(FileHandle,0,NULL,NULL,&Iosb,buffer,256,0,NULL);
     ((char*)buffer)[Iosb.Information]=0;
 
 	CHECK_STATUSA(Status,Lesen des Computernamens);
 	RETURN_NULL_IF_STATUS_UNSUCCESSFULL
 
-	buffer2 = (PWCHAR)io.malloc(500);//RtlAllocateHeap( Heap, 0, 500 );
+	io.print("Trying to parse file ... ");
+	char *parsed=parseComputerNameFile(io,buffer,Iosb.Information);
+
+	if (parsed!=0)
+	{
+		io.print("successful: ");
+		io.println(parsed);
+	}
+	else
+	{
+		io.println("failed.");
+		io.free(buffer);
+		io.free(parsed);
+		return 0;
+	}
+
+	buffer2 = (PWCHAR)io.malloc(500);
     
-	io.print("Computername aus Datei: ");
-	io.println((char*)buffer);
-    
-    mbstowcs(buffer2,(char*)buffer,Iosb.Information+1);
+    mbstowcs(buffer2,(char*)parsed,strlen(parsed));
     
     Status = ZwClose(FileHandle);
 
 	CHECK_STATUS(Status,Schlieﬂen der Datei);
 
 	io.free(buffer);
+	io.free(parsed);
 
 	return buffer2;
 }
