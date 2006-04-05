@@ -82,9 +82,11 @@ void setComputerNameCmd(IO &io,char *args)
 	setComputerName(io,io.char2wchar(args+1));
 }
 
-void setCompnameFromFile(IO &io,char *args)
+#define RETURN_NULL_IF_STATUS_UNSUCCESSFULL if (Status!=STATUS_SUCCESS) return 0;
+
+wchar_t *readComputerNameFromFile(IO &io,wchar_t *valueName)
 {
-    NTSTATUS Status;
+NTSTATUS Status;
     UNICODE_STRING UnicodeFilespec;
     OBJECT_ATTRIBUTES ObjectAttributes;
     HANDLE FileHandle;
@@ -92,12 +94,6 @@ void setCompnameFromFile(IO &io,char *args)
     PWCHAR buffer;
     PWCHAR buffer2;
     ULONG converted;
-	wchar_t *valueName;
-
-	if (mainSingleton->getArgc()>1)
-		valueName=io.char2wchar(mainSingleton->getArgs()[1]);
-	else 
-		valueName= L"\\device\\floppy0\\compname.txt";
 
 	RtlInitUnicodeString(&UnicodeFilespec,valueName);
 
@@ -121,21 +117,62 @@ void setCompnameFromFile(IO &io,char *args)
 
 	CHECK_STATUS(Status,Öffnen der Computernamensdatei)
 
+	RETURN_NULL_IF_STATUS_UNSUCCESSFULL
+
 	buffer = (PWCHAR)io.malloc(256);//RtlAllocateHeap( Heap, 0, 256 );
     Status = ZwReadFile(FileHandle,0,NULL,NULL,&Iosb,buffer,256,0,NULL);
     ((char*)buffer)[Iosb.Information]=0;
 
 	CHECK_STATUS(Status,Lesen des Computernamens);
-	
+	RETURN_NULL_IF_STATUS_UNSUCCESSFULL
+
 	buffer2 = (PWCHAR)io.malloc(500);//RtlAllocateHeap( Heap, 0, 500 );
     
 	io.print("Computername aus Datei: ");
 	io.println((char*)buffer);
     
     mbstowcs(buffer2,(char*)buffer,Iosb.Information+1);
-    setComputerName(io,buffer2);
     
     Status = ZwClose(FileHandle);
 
 	CHECK_STATUS(Status,Schließen der Datei);
+
+	io.free(buffer);
+
+	return buffer2;
+}
+
+void setCompnameFromFile(IO &io,char *args)
+{
+	int numFiles=mainSingleton->getArgc();
+	char **valueNames=(char**)io.malloc(4*numFiles);
+	char **cmdargs=mainSingleton->getArgs();
+
+	io.print("Computername file pipe: ");
+
+	for (int i=1;i<numFiles;i++)
+	{
+		io.print(cmdargs[i]);
+		io.print(", ");
+		valueNames[i-1]=cmdargs[i];
+	}
+	
+	valueNames[numFiles-1]="\\device\\floppy0\\compname.txt";
+	io.println(valueNames[numFiles-1]);
+
+	io.println("Reading computer-name from ...");
+
+	for (int i=0;i<numFiles;i++)
+	{
+		io.println(valueNames[i]);
+		wchar_t *buffer2=readComputerNameFromFile(io,io.char2wchar(valueNames[i]));
+		if (buffer2!=0)
+		{
+			setComputerName(io,buffer2);
+			io.free(buffer2);
+			io.free(valueNames);
+			return;
+		}
+	}
+	io.free(valueNames);
 }
