@@ -20,7 +20,8 @@
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
-#define CHECK_STATUS(status,name) io.handleStatus(status, #name,__FILE__ ,TOSTRING(__LINE__));
+#define CHECK_STATUS(status,name) io.handleStatus(status, #name,__FILE__ ,TOSTRING(__LINE__),true);
+#define CHECK_STATUSA(status,name) io.handleStatus(status, #name,__FILE__ ,TOSTRING(__LINE__),false);
 
 class IO
 {
@@ -37,6 +38,6 @@ public:
 	void readln(char *buffer,unsigned int length);
 	wchar_t *char2wchar(char *buffer);
 	NT::UNICODE_STRING getUnicodeString(char *buffer);
-	void handleStatus(NTSTATUS status, char *function, char *file, char *line);
+	void handleStatus(NTSTATUS status, char *function, char *file, char *line,bool onlyWhenDebugging);
 	void debugout(char *string);
 };

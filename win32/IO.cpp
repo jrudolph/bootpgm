@@ -82,7 +82,10 @@ NT::UNICODE_STRING IO::getUnicodeString(char *buffer)
 	return UnicodeFilespec;
 }
 
-void IO::handleStatus(NT::NTSTATUS status,char *place,char *file,char *line){
+void IO::handleStatus(NT::NTSTATUS status,char *place,char *file,char *line,bool onlyWhenDebugging){
+#ifndef DEBUGGING
+	if (!onlyWhenDebugging)
+#endif
 	if (status!=STATUS_SUCCESS)
 	{
 		print(file);

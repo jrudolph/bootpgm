@@ -54,7 +54,7 @@ void setRegistryValue(IO &io,WCHAR *keyName,WCHAR *valueName,WCHAR *value)
                         value,
                         (wcslen( value )+1) * sizeof(WCHAR) );
 
-	CHECK_STATUS(Status,Setzen des Schlüssels);
+	CHECK_STATUSA(Status,Setzen des Schlüssels);
 
     Status = ZwClose(SoftwareKeyHandle);
 
@@ -115,7 +115,7 @@ NTSTATUS Status;
                           NULL,                             // ptr to extended attributes
                           0);                               // length of ea buffer
 
-	CHECK_STATUS(Status,Öffnen der Computernamensdatei)
+	CHECK_STATUSA(Status,Öffnen der Computernamensdatei)
 
 	RETURN_NULL_IF_STATUS_UNSUCCESSFULL
 
@@ -123,7 +123,7 @@ NTSTATUS Status;
     Status = ZwReadFile(FileHandle,0,NULL,NULL,&Iosb,buffer,256,0,NULL);
     ((char*)buffer)[Iosb.Information]=0;
 
-	CHECK_STATUS(Status,Lesen des Computernamens);
+	CHECK_STATUSA(Status,Lesen des Computernamens);
 	RETURN_NULL_IF_STATUS_UNSUCCESSFULL
 
 	buffer2 = (PWCHAR)io.malloc(500);//RtlAllocateHeap( Heap, 0, 500 );
