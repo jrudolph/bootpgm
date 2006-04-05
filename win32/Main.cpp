@@ -58,6 +58,7 @@ void showCmds(IO &io,char *args)
 	if (mainSingleton!=NULL)
 	{
 		io.println("Available commands:");
+		Indenter i(io);
 		for (int i=0;i<mainSingleton->funcc;i++)
 		{
 			io.println(mainSingleton->commands[i].name);
@@ -70,6 +71,7 @@ void showArgs(IO &io,char *args)
 	if (mainSingleton!=NULL)
 	{
 		io.println("Commandline arguments:");
+		Indenter i(io);
 		for (int i=0;i<mainSingleton->argc;i++)
 		{
 			io.println((char*)mainSingleton->argv[i]);

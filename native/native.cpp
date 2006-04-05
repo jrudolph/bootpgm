@@ -207,7 +207,7 @@ public:
 	{
 		RtlFreeHeap(Heap,0,buffer);
 	}
-	void print(char *buffer)
+	void internPrint(char *buffer)
 	{
 		UNICODE_STRING UnicodeFilespec=getUnicodeString(buffer);
 

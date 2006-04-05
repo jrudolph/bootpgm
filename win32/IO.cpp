@@ -19,17 +19,30 @@
 #include "StdAfx.h"
 #include "IO.h"
 
-IO::IO(void)
+IO::IO(void):indent(0),current(0)
 {
 }
 
 IO::~IO(void)
 {
 }
+void IO::print(char *buffer)
+{
+	if (current==0)
+	{
+		for (int i=0;i<indent;i++)
+			internPrint(" ");
+		current+=indent;
+	}
+	current+=strlen(buffer);
+	internPrint(buffer);
+}
+
 void IO::println(char *buffer)
 {
 	print(buffer);
 	print("\n");
+	current=0;
 }
 
 void IO::readln(char *buffer,unsigned int length)
@@ -106,7 +119,18 @@ void IO::handleStatus(NT::NTSTATUS status,char *place,char *file,char *line,bool
 }
 inline void IO::debugout(char *string)
 {
-	/*print("[debug] ");
+#ifdef DEBUGGING
+	print("[debug] ");
 	println(string);
 	NT::DbgPrint("[bootpgm] %s\n",string);*/
+#endif
+}
+
+void IO::setIndent(unsigned char indent)
+{
+	this->indent=indent;
+}
+unsigned char IO::getIndent()
+{
+	return indent;
 }

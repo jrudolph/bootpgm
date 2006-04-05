@@ -25,10 +25,13 @@
 
 class IO
 {
+	unsigned char indent;
+	unsigned char current;
 public:
 	IO(void);
 	virtual char getChar()=0;
-	virtual void print(char *buffer)=0;
+	void print(char *buffer);
+	virtual void internPrint(char *buffer)=0;
 	void println(char *buffer);
 	virtual void*malloc(unsigned int length)=0;
 	virtual void free(void *buffer)=0;
@@ -40,4 +43,22 @@ public:
 	NT::UNICODE_STRING getUnicodeString(char *buffer);
 	void handleStatus(NTSTATUS status, char *function, char *file, char *line,bool onlyWhenDebugging);
 	void debugout(char *string);
+	void setIndent(unsigned char indent);
+	unsigned char getIndent();
+};
+
+class Indenter
+{
+	unsigned char original;
+	IO &io;
+public:
+	Indenter(IO &pio):io(pio)
+	{
+		original=io.getIndent();
+		io.setIndent(original+2);
+	}
+	~Indenter()
+	{
+		io.setIndent(original);
+	}
 };

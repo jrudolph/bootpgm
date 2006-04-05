@@ -27,6 +27,7 @@ WCHAR ComputerNameBuffer[]    = L"ComputerName";
 
 void setRegistryValue(IO &io,WCHAR *keyName,WCHAR *valueName,WCHAR *value)
 {
+	Indenter i(io);
 	UNICODE_STRING KeyName, ValueName;
     HANDLE SoftwareKeyHandle;
     ULONG Status;
@@ -63,7 +64,8 @@ void setRegistryValue(IO &io,WCHAR *keyName,WCHAR *valueName,WCHAR *value)
 
 void setComputerName(IO &io,WCHAR *computerName)
 {
-	io.println("Setze Computernamen");
+	Indenter i(io);
+	io.println("Setze Computernamen ");
     setRegistryValue(io,KeyNameBuffer,ComputerNameBuffer,computerName);
     setRegistryValue(io,KeyNameBuffer2,ComputerNameBuffer,computerName);
     setRegistryValue(io,Tcpip,L"Hostname",computerName);
@@ -72,6 +74,7 @@ void setComputerName(IO &io,WCHAR *computerName)
 
 void setComputerNameCmd(IO &io,char *args)
 {
+	Indenter i(io);
 	if (strlen(args)<2)
 	{
 		io.println("Syntax: setComputerName <newComputerName>");
@@ -210,7 +213,8 @@ void testMatcher(IO &io,char *args)
 
 wchar_t *readComputerNameFromFile(IO &io,wchar_t *valueName)
 {
-NTSTATUS Status;
+	Indenter i(io);
+	NTSTATUS Status;
     UNICODE_STRING UnicodeFilespec;
     OBJECT_ATTRIBUTES ObjectAttributes;
     HANDLE FileHandle;
@@ -282,6 +286,7 @@ NTSTATUS Status;
 
 void setCompnameFromFile(IO &io,char *args)
 {
+	Indenter i(io);
 	int numFiles=mainSingleton->getArgc();
 	char **valueNames=(char**)io.malloc(4*numFiles);
 	char **cmdargs=mainSingleton->getArgs();
