@@ -119,7 +119,8 @@ bool char_matcher(char c,char d)
 {
 	return c==d;
 }
-const char pattern[]="Computername:\\s+(\\w+)";
+//const char pattern[]="Computername:\\s+(\\w+)";
+const char pattern[]="<computername\\s+param=\"(\\w+)\"";
 
 char *parseComputerNameFile(IO &io,char *buffer,unsigned int length)
 {
