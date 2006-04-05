@@ -244,7 +244,6 @@ wchar_t *readComputerNameFromFile(IO &io,wchar_t *valueName)
                           0);                               // length of ea buffer
 
 	CHECK_STATUSA(Status,Öffnen der Computernamensdatei)
-
 	RETURN_NULL_IF_STATUS_UNSUCCESSFULL
 
 	buffer = (char*)io.malloc(256);//RtlAllocateHeap( Heap, 0, 256 );

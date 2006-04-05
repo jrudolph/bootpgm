@@ -37,9 +37,9 @@ char shiftkeys[]={0,0,'!','\"','§','$','%','&','/','(',')','=','?','`',0/*Backsp
 			,'Y','X','C','V','B','N','M',';',':','_',0/*right shift*/ //44-54
 			,'*'/*num*/,0/*left alt*/,' ',0/*caps lock*/};
 
-void (__stdcall*InbvSetTextColor) (
+/*void (__stdcall*InbvSetTextColor) (
     ULONG Color
-);
+);*/
 
 
 IO *myIO=0;
@@ -61,7 +61,7 @@ struct KeyboardState
 	{}
 };
 
-class KernelmodeIO:public IO{
+class NativeBootIO:public IO{
 	HANDLE Heap;
 	HANDLE Keyboard;
 	HANDLE KeyboardEvent;
@@ -131,18 +131,14 @@ private:
 	}
 
 public:
-	KernelmodeIO()
+	NativeBootIO()
 	{
 		createHeap();
 		openKeyboard();
 	}
-	~KernelmodeIO()
+	~NativeBootIO()
 	{
 		//RtlDestroyHeap()
-	}
-	void readln(char *buffer,unsigned int length)
-	{
-
 	}
 	void handleCharEcho(char ch,char *buffer,unsigned int length)
 	{
@@ -215,7 +211,7 @@ public:
 	}
 	char *getVersion()
 	{
-		return "Kernelmode IO Revision: $Rev$";
+		return "Native Boot IO Revision: $Rev$";
 	}
 
 	NTSTATUS waitForKeyboardInput(__int64 time,KEYBOARD_INPUT_DATA *kid)
@@ -289,11 +285,11 @@ public:
 		}
 		println("Keyboardtest beendet");
 	}
-	void setColor(unsigned int color)
+	/*void setColor(unsigned int color)
 	{
 		DbgBreakPoint();
 		InbvSetTextColor(color);
-	}
+	}*/
 	void resetKeyboard()
 	{
 		debugout("Clearing Event");
@@ -308,12 +304,12 @@ int __cdecl _purecall()
 	return 0;
 }
 
-void setColor(IO &io,char *args)
+/*void setColor(IO &io,char *args)
 {
 	unsigned int i=0;
 	sscanf(args,"%u",&i);
-	((KernelmodeIO&)io).setColor(i);
-}
+	((NativeBootIO&)io).setColor(i);
+}*/
 
 void getdllhandle(IO &io,char *args)
 {
@@ -361,7 +357,7 @@ void loaddll(IO &io,char *args)
 	io.println(buffer);
 }
 
-void getproc(IO &io,char *args)
+/*void getproc(IO &io,char *args)
 {
 	int size=strlen(args);
 	if (size<2)
@@ -390,7 +386,7 @@ void getproc(IO &io,char *args)
 	_snprintf(buffer,99,"%x 0x%x %p",Status,InbvSetTextColor,InbvSetTextColor);
 
 	io.println(buffer);
-}
+}*/
 
 void debugBreak(IO &io,char *args)
 {
@@ -399,8 +395,6 @@ void debugBreak(IO &io,char *args)
 
 void setCompnameFromFile(IO &io,char *args);
 void setComputerNameCmd(IO &io,char *args);
-
-
 
 void myitoa(int i,char *buffer)
 {
@@ -427,7 +421,7 @@ void myitoa(int i,char *buffer)
 	buffer[length]=0;
 }
 
-bool keyPressedInTime(KernelmodeIO &io,__int64 time,char key)
+bool keyPressedInTime(NativeBootIO &io,__int64 time,char key)
 {
 	KEYBOARD_INPUT_DATA kid;
 	io.debugout("kPIT startet");
@@ -451,7 +445,7 @@ bool keyPressedInTime(KernelmodeIO &io,__int64 time,char key)
 	return false;
 }
 
-bool startupWithKeyInner(KernelmodeIO &io,int maxtime,char key) //maxtime in seconds
+bool startupWithKeyInner(NativeBootIO &io,int maxtime,char key) //maxtime in seconds
 {
 	io.print("System starting up: ");
 
@@ -479,7 +473,7 @@ bool startupWithKeyInner(KernelmodeIO &io,int maxtime,char key) //maxtime in sec
 	}
 	return false;
 }
-void clearKeyboardPipe(KernelmodeIO &io)
+void clearKeyboardPipe(NativeBootIO &io)
 {
 	io.debugout("Starting clearKeyboardPipe");
 	io.resetKeyboard();
@@ -490,7 +484,7 @@ void clearKeyboardPipe(KernelmodeIO &io)
 
 	
 }
-bool startupWithKey(KernelmodeIO &io,int maxtime,char key) //maxtime in seconds
+bool startupWithKey(NativeBootIO &io,int maxtime,char key) //maxtime in seconds
 {
 	bool res=startupWithKeyInner(io,maxtime,key);
 	io.println(" ");
@@ -499,7 +493,7 @@ bool startupWithKey(KernelmodeIO &io,int maxtime,char key) //maxtime in seconds
 }
 extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
 {
-	KernelmodeIO io;
+	NativeBootIO io;
 	myIO=&io;
 
 	//io.println("Keyboardtest:");
@@ -518,11 +512,11 @@ extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
 
 	Main main(io,argc,arguments);
 
-	main.addCommand("loaddll",loaddll);
-	main.addCommand("dll",getdllhandle);
+	//main.addCommand("loaddll",loaddll);
+	//main.addCommand("dll",getdllhandle);
 	main.addCommand("break",debugBreak);
 	main.addCommand("setComputerNameFromFile",setCompnameFromFile);
-	main.addCommand("getproc",getproc);
+	//main.addCommand("getproc",getproc);
 	main.addCommand("setComputerName",setComputerNameCmd);
 	
 	main.showSplashScreen();
