@@ -26,7 +26,7 @@ public:
 	{
 		return getchar();
 	}
-	void internPrint(char *buffer)
+	void internalPrint(char *buffer)
 	{
 		printf(buffer);
 	}

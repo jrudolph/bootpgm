@@ -31,11 +31,11 @@ void IO::print(char *buffer)
 	if (current==0)
 	{
 		for (int i=0;i<indent;i++)
-			internPrint(" ");
+			internalPrint(" ");
 		current+=indent;
 	}
 	current+=strlen(buffer);
-	internPrint(buffer);
+	internalPrint(buffer);
 }
 
 void IO::println(char *buffer)

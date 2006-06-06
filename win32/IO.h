@@ -23,21 +23,51 @@
 #define CHECK_STATUS(status,name) io.handleStatus(status, #name,__FILE__ ,TOSTRING(__LINE__),true);
 #define CHECK_STATUSA(status,name) io.handleStatus(status, #name,__FILE__ ,TOSTRING(__LINE__),false);
 
+/*
+Class: IO
+Interface for the main input/output functions, contains some helper functions
+*/
 class IO
 {
 	unsigned char indent;
 	unsigned char current;
 public:
-	IO(void);
+	/*
+	Method: getChar
+	has to be implemented by concrete controllers
+
+	Returns: 
+	one char per call from input device (keyboard)
+	*/
 	virtual char getChar()=0;
-	void print(char *buffer);
-	virtual void internPrint(char *buffer)=0;
-	void println(char *buffer);
+	/*
+	Method: internalPrint
+	prints buffer to screen, must be implemented by concrete controllers
+
+	Parameters:
+	buffer - null-terminated string to be printed to screen
+	*/
+	virtual void internalPrint(char *buffer)=0;
+	/*
+	Method: malloc
+	allocates memory of specified size, must be implemented by concrete controllers
+
+	Parameters:
+	length - length of buffer to allocate
+
+	Returns:
+	pointer to allocated memory
+	*/
 	virtual void*malloc(unsigned int length)=0;
 	virtual void free(void *buffer)=0;
-	~IO(void);
 	virtual char *getVersion()=0;
 	virtual void handleCharEcho(char ch,char *buffer,unsigned int length)=0;
+
+	IO(void);
+	~IO(void);
+
+	void print(char *buffer);
+	void println(char *buffer);
 	void readln(char *buffer,unsigned int length);
 	wchar_t *char2wchar(char *buffer);
 	NT::UNICODE_STRING getUnicodeString(char *buffer);

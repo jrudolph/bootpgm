@@ -16,6 +16,11 @@
  *    Johannes Rudolph <johannes_rudolph@gmx.de>
  */ 
 
+/*
+File: computername.cpp
+functions to change the computer name in the Windows registry
+*/
+
 #include "stdafx.h"
 #include "io.h"
 #include "main.h"
@@ -25,6 +30,12 @@ WCHAR KeyNameBuffer2[]        = L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet
 WCHAR Tcpip[]        = L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters";
 WCHAR ComputerNameBuffer[]    = L"ComputerName";
 
+/*
+Function: setRegistryValue
+
+Parameters:
+io: reference to <IO>-Controller
+*/
 void setRegistryValue(IO &io,WCHAR *keyName,WCHAR *valueName,WCHAR *value)
 {
 	Indenter i(io);
@@ -62,6 +73,14 @@ void setRegistryValue(IO &io,WCHAR *keyName,WCHAR *valueName,WCHAR *value)
 	CHECK_STATUS(Status,Schließen des Schlüssels);
 }
 
+/*
+Function: setComputerName
+sets the computer name in the registry to the specified one
+
+Parameters:
+io - reference to the <IO>-Controller
+computerName - the designated computer name as UNICODE string
+*/
 void setComputerName(IO &io,WCHAR *computerName)
 {
 	Indenter i(io);
@@ -71,7 +90,14 @@ void setComputerName(IO &io,WCHAR *computerName)
     setRegistryValue(io,Tcpip,L"Hostname",computerName);
     setRegistryValue(io,Tcpip,L"NV Hostname",computerName);
 }
+/*
+Function: setComputerNameCmd
+command line command for setting the computer name manually
 
+Parameters:
+io - <IO>-Controller
+args - command line argument string
+*/
 void setComputerNameCmd(IO &io,char *args)
 {
 	Indenter i(io);
@@ -87,8 +113,23 @@ void setComputerNameCmd(IO &io,char *args)
 
 #define RETURN_NULL_IF_STATUS_UNSUCCESSFULL if (Status!=STATUS_SUCCESS) return 0;
 
+/*
+Constant: whitespaces
+defines whitespace character group, each char of this array
+designates one white space character
+*/
 const char whitespaces[]=" \t\n\x0B\f\r";
 
+/*
+Function: isWhitespace
+Helper function for regexp parser. Tests if c is white space.
+
+Parameters:
+c - character to test
+
+Returns: 
+true if character is white space as defined in <whitespaces>
+*/
 bool isWhitespace(char c)
 {
 	for (int i=0;i<sizeof(whitespaces);i++)
@@ -97,7 +138,13 @@ bool isWhitespace(char c)
 
 	return false;
 }
+/*
+Function: isCapitalLetter
+Helper function for regexp parser. Tests if c is a capital letter.
 
+Parameters:
+c - character to test
+*/
 bool isCapitalLetter(char c)
 {
 	return c>='A'&&c<='Z';
@@ -120,8 +167,31 @@ bool char_matcher(char c,char d)
 	return c==d;
 }
 //const char pattern[]="Computername:\\s+(\\w+)";
+/*
+Constant: pattern
+regular expression pattern which defines the place in a file
+to read the computer name from.
+
+The computer name will be the match for the first bracketed expression.
+
+Example:
+: <computername\\s+param=\"(\\w+)\"
+will match *test* in *<computername param="test" />*
+*/
 const char pattern[]="<computername\\s+param=\"(\\w+)\"";
 
+/*
+Function: parseComputerNameFile
+uses <pattern> to find a match in the buffer
+
+Parameters:
+io - <IO>-Controller
+buffer - source buffer
+length - length of source buffer
+
+Returns:
+a string containing the match or 0 otherwise
+*/
 char *parseComputerNameFile(IO &io,char *buffer,unsigned int length)
 {
 	int patternpos=0;
@@ -163,8 +233,10 @@ char *parseComputerNameFile(IO &io,char *buffer,unsigned int length)
 			while (matched)
 			{
 				if (lastData!=0)
+					// use binary matcher
 					matched=((bool(*)(char,char))matcher)(buffer[i],lastData);
 				else
+					// use unary matcher
 					matched=((bool(*)(char))matcher)(buffer[i]);
 
 				if (matched&&i<length)
@@ -212,7 +284,20 @@ void testMatcher(IO &io,char *args)
 	char *return0=parseComputerNameFile(io,string,sizeof(string));
 }
 
-wchar_t *readComputerNameFromFile(IO &io,wchar_t *valueName)
+/*
+Function: readComputerNameFromFile
+reads the computer name from the specified file, uses <pattern> to 
+find computer name in it
+
+Parameters:
+io - <IO>-Controller
+fileName - reads computer name from this file
+
+Returns:
+UNICODE string containing the new computer name, 0 in case of error or if 
+the name couldn't be found
+*/
+wchar_t *readComputerNameFromFile(IO &io,wchar_t *fileName)
 {
 	Indenter i(io);
 	NTSTATUS Status;
@@ -224,7 +309,7 @@ wchar_t *readComputerNameFromFile(IO &io,wchar_t *valueName)
     PWCHAR buffer2;
     ULONG converted;
 
-	RtlInitUnicodeString(&UnicodeFilespec,valueName);
+	RtlInitUnicodeString(&UnicodeFilespec,fileName);
 
     InitializeObjectAttributes(&ObjectAttributes,           // ptr to structure
                                &UnicodeFilespec,            // ptr to file spec
@@ -284,6 +369,20 @@ wchar_t *readComputerNameFromFile(IO &io,wchar_t *valueName)
 	return buffer2;
 }
 
+/*
+Function: setCompnameFromFile
+command line command to set computer name from file.
+
+Uses a list of files to find computer name. List consists of 
+command line parameters and hard coded *\\device\\floppy0\\compname.txt*.
+
+Tries to read each file and extract the computer name in the list till a 
+valid one is found. This is set as computer name afterwards.
+
+Parameters:
+io - <IO>-Controller
+args - command line
+*/
 void setCompnameFromFile(IO &io,char *args)
 {
 	Indenter i(io);
