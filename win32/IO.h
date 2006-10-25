@@ -16,6 +16,11 @@
  *    Johannes Rudolph <johannes_rudolph@gmx.de>
  */ 
 
+/*
+File: IO.h
+Declaration of IO and Indenter classes
+*/
+
 #pragma once
 
 #define STRINGIFY(x) #x
