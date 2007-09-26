@@ -20,7 +20,7 @@
 #include "io.h"
 #include "main.h"
 
-#include "native.h"
+#include "newnative.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -310,84 +310,6 @@ int __cdecl _purecall()
     sscanf(args,"%u",&i);
     ((NativeBootIO&)io).setColor(i);
 }*/
-
-void getdllhandle(IO &io,char *args)
-{
-    int size=strlen(args);
-    if (size<2)
-    {
-        io.println("need at least 1 argument");
-        return;
-    }
-    args++;
-
-    io.print("Trying to find ");
-    io.print(args);
-    io.println("...");
-
-    HANDLE h=0;
-
-    NTSTATUS Status=LdrGetDllHandle(0,0,&io.getUnicodeString(args),&h);
-    char *buffer=(char*)io.malloc(100);
-    _snprintf(buffer,99,"%x 0x%x %p",Status,h,h);
-
-    io.println(buffer);
-}
-
-void loaddll(IO &io,char *args)
-{
-    int size=strlen(args);
-    if (size<2)
-    {
-        io.println("need at least 1 argument");
-        return;
-    }
-    args++;
-
-    io.print("Trying to load ");
-    io.print(args);
-    io.println("...");
-
-    HANDLE h=0;
-
-    NTSTATUS Status=LdrLoadDll(0,0,&io.getUnicodeString(args),&h);
-    char *buffer=(char*)io.malloc(100);
-    _snprintf(buffer,99,"%x 0x%x %p",Status,h,h);
-
-    io.println(buffer);
-}
-
-/*void getproc(IO &io,char *args)
-{
-    int size=strlen(args);
-    if (size<2)
-    {
-        io.println("need at least 1 argument");
-        return;
-    }
-    args++;
-
-    int addr;
-    char name[81];
-    ANSI_STRING as;
-    sscanf(args,"%x %80s",&addr,name);
-
-    io.print("Trying to find Proc:");
-    io.print(name);
-    io.println("...");
-
-    as.Buffer=name;
-    as.Length=strlen(name);
-
-    HANDLE h=0;
-
-    NTSTATUS Status=LdrGetProcedureAddress((HANDLE)addr,&as,0,(void**)&InbvSetTextColor);
-    char *buffer=(char*)io.malloc(100);
-    _snprintf(buffer,99,"%x 0x%x %p",Status,InbvSetTextColor,InbvSetTextColor);
-
-    io.println(buffer);
-}*/
-
 void debugBreak(IO &io,char *args)
 {
     DbgBreakPoint();
@@ -491,7 +413,7 @@ bool startupWithKey(NativeBootIO &io,int maxtime,char key) //maxtime in seconds
     clearKeyboardPipe(io);
     return res;
 }
-extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
+extern "C" void NtProcessStartup(::PPEB peb )
 {
     NativeBootIO io;
     myIO=&io;
@@ -499,12 +421,13 @@ extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
     //io.println("Keyboardtest:");
     //io.testKeyboard();
     //DbgBreakPoint();
-    UNICODE_STRING *us=&Argument->Environment->CommandLine;
+    //UNICODE_STRING *us=&Argument->Environment->CommandLine;
     // CommandLine is !not! what it is supposed to be
     // code in original native.c works only accidentially as expected
     // CommandLine is what they call ImageFile
     // the correct CommandLine comes right after the ImageFile
-    wchar_t *cmdLine=(wchar_t*)(((char*)us->Buffer)+us->MaximumLength);
+    //wchar_t *cmdLine=(wchar_t*)(((char*)us->Buffer)+us->MaximumLength);
+	wchar_t *cmdLine = peb->ProcessParameters->CommandLine.Buffer;
 
     char **arguments;
     int argc;
@@ -518,6 +441,7 @@ extern "C" void NtProcessStartup( PSTARTUP_ARGUMENT Argument )
     main.addCommand("setComputerNameFromFile",setCompnameFromFile);
     //main.addCommand("getproc",getproc);
     main.addCommand("setComputerName",setComputerNameCmd);
+	main.addCommand("showArgs",showArgs);
 
     main.showSplashScreen();
 

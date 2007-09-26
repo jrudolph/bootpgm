@@ -44,6 +44,6 @@ namespace NT {
 }
 
 using namespace NT;
-#include "../native/native.h"
+#include "../native/newnative.h"
 
 // TODO: reference additional headers your program requires here
