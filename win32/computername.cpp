@@ -40,35 +40,35 @@ void setRegistryValue(IO &io,WCHAR *keyName,WCHAR *valueName,WCHAR *value)
 {
 	Indenter i(io);
 	UNICODE_STRING KeyName, ValueName;
-    HANDLE SoftwareKeyHandle;
-    ULONG Status;
-    OBJECT_ATTRIBUTES ObjectAttributes;
-    ULONG Disposition;
+	HANDLE SoftwareKeyHandle;
+	ULONG Status;
+	OBJECT_ATTRIBUTES ObjectAttributes;
+	ULONG Disposition;
 
 	//io.print("Schreibe Registry-Key ");
-	
-    //DbgBreakPoint();
-    //
-    // Open the Software key
-    //
+
+	//DbgBreakPoint();
+	//
+	// Open the Software key
+	//
 	NT::RtlInitUnicodeString(&KeyName,keyName);
-    InitializeObjectAttributes( &ObjectAttributes, &KeyName,
-            OBJ_CASE_INSENSITIVE, NULL, NULL );
-    Status = ZwCreateKey( &SoftwareKeyHandle, KEY_ALL_ACCESS,
-                    &ObjectAttributes, 0,  NULL, REG_OPTION_NON_VOLATILE,
-                    &Disposition );
-	
+	InitializeObjectAttributes( &ObjectAttributes, &KeyName,
+			OBJ_CASE_INSENSITIVE, NULL, NULL );
+	Status = ZwCreateKey( &SoftwareKeyHandle, KEY_ALL_ACCESS,
+					&ObjectAttributes, 0,  NULL, REG_OPTION_NON_VOLATILE,
+					&Disposition );
+
 	CHECK_STATUS(Status,Öffnen des Schlüssels)
 
 	NT::RtlInitUnicodeString(&ValueName,valueName);
-    
-    Status = ZwSetValueKey( SoftwareKeyHandle, &ValueName, 0, REG_SZ,
-                        value,
-                        (wcslen( value )+1) * sizeof(WCHAR) );
+
+	Status = ZwSetValueKey( SoftwareKeyHandle, &ValueName, 0, REG_SZ,
+						value,
+						(wcslen( value )+1) * sizeof(WCHAR) );
 
 	CHECK_STATUSA(Status,Setzen des Schlüssels);
 
-    Status = ZwClose(SoftwareKeyHandle);
+	Status = ZwClose(SoftwareKeyHandle);
 
 	CHECK_STATUS(Status,Schließen des Schlüssels);
 }
