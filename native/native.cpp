@@ -418,20 +418,11 @@ extern "C" void NtProcessStartup(::PPEB peb )
     NativeBootIO io;
     myIO=&io;
 
-    //io.println("Keyboardtest:");
-    //io.testKeyboard();
-    //DbgBreakPoint();
-    //UNICODE_STRING *us=&Argument->Environment->CommandLine;
-    // CommandLine is !not! what it is supposed to be
-    // code in original native.c works only accidentially as expected
-    // CommandLine is what they call ImageFile
-    // the correct CommandLine comes right after the ImageFile
-    //wchar_t *cmdLine=(wchar_t*)(((char*)us->Buffer)+us->MaximumLength);
-	wchar_t *cmdLine = peb->ProcessParameters->CommandLine.Buffer;
+	UNICODE_STRING *cmdLine = &peb->ProcessParameters->CommandLine;
 
     char **arguments;
     int argc;
-    arguments=split_args(io,cmdLine,&argc);
+    arguments=split_args(io,cmdLine->Buffer,cmdLine->Length,&argc);
 
     Main main(io,argc,arguments);
 

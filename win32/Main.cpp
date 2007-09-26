@@ -21,10 +21,8 @@
 
 Main *mainSingleton=NULL;
 
-char **split_args(IO &io,wchar_t* cmdLine,int *pargc)
+char **split_args(IO &io,wchar_t* cmdLine,int length,int *pargc)
 {
-	int length=wcslen(cmdLine);
-
 	int argCount=0;
 	for (int i=0;i<length;i++)
 		if (*(cmdLine+i)==L' ')
