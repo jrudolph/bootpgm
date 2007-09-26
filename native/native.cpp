@@ -418,11 +418,11 @@ extern "C" void NtProcessStartup(::PPEB peb )
     NativeBootIO io;
     myIO=&io;
 
-	UNICODE_STRING *cmdLine = &peb->ProcessParameters->CommandLine;
+	UNICODE_STRING &cmdLine = peb->ProcessParameters->CommandLine;
 
     char **arguments;
     int argc;
-    arguments=split_args(io,cmdLine->Buffer,cmdLine->Length,&argc);
+    arguments=split_args(io,cmdLine.Buffer,cmdLine.Length/2,&argc);
 
     Main main(io,argc,arguments);
 
@@ -432,13 +432,12 @@ extern "C" void NtProcessStartup(::PPEB peb )
     main.addCommand("setComputerNameFromFile",setCompnameFromFile);
     //main.addCommand("getproc",getproc);
     main.addCommand("setComputerName",setComputerNameCmd);
-	main.addCommand("showArgs",showArgs);
 
     main.showSplashScreen();
 
-    /*if (startupWithKey(io,2,'v'))
+    if (startupWithKey(io,2,'v'))
         main.rpl();
-    else*/
+    else
         setCompnameFromFile(io,0);
 
     NtTerminateProcess( NtCurrentProcess(), 0 );

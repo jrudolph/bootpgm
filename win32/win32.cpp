@@ -58,6 +58,12 @@ void wurst(IO &io,char *cmd)
 	io.println(cmd);
 }
 
+char** testSplitArgs(IO &io,int*argc){
+	UNICODE_STRING str;
+	NT::RtlInitUnicodeString(&str,L"test test2\0 test3");
+	return split_args(io,str.Buffer,str.Length/2,argc);
+}
+
 void setCompnameFromFile(IO &io,char *args);
 void initFileTools(IO *io);
 
@@ -67,8 +73,9 @@ void testMatcher(IO &io,char *args);
 int __cdecl main(int argc, _TCHAR* argv[])
 {
 	UsermodeIO io;
+	
 	Main main(io,argc,(char**)argv);
-
+	
 	initFileTools(&io);
 
 	main.addCommand("test",wurst);

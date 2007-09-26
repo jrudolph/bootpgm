@@ -59,4 +59,4 @@ public:
 };
 
 extern Main *mainSingleton;
-char **split_args(IO &io,wchar_t* cmdLine,int *pargc);
+char **split_args(IO &io,wchar_t* cmdLine,int length,int *pargc);
