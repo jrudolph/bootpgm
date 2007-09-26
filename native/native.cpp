@@ -36,12 +36,6 @@ char shiftkeys[]={0,0,'!','\"','§','$','%','&','/','(',')','=','?','`',0/*Backsp
             ,0/*strg*/,'A','S','D','F','G','H','J','K','L','Ö','Ä','°',0/*left shift*/,'\'' //29-43
             ,'Y','X','C','V','B','N','M',';',':','_',0/*right shift*/ //44-54
             ,'*'/*num*/,0/*left alt*/,' ',0/*caps lock*/};
-
-/*void (__stdcall*InbvSetTextColor) (
-    ULONG Color
-);*/
-
-
 IO *myIO=0;
 
 void fatal(char *msg)
@@ -158,7 +152,6 @@ public:
     char getChar()
     {
         debugout("getChar startet");
-        //DbgPrint("getChar startet\n");
         KEYBOARD_INPUT_DATA kid;
 
         int chr=0;
@@ -185,9 +178,6 @@ public:
                         chr=keys[kid.MakeCode];
                 else
                     chr=0;
-
-                //printkid(kid);
-                //DbgBreakPoint();
             }
         }
         while(chr==0);
@@ -230,8 +220,6 @@ public:
             KeyboardEvent,0,0,&Iosb,kid,sizeof(KEYBOARD_INPUT_DATA),&bo,NULL);
 
         debugout("wFKI: nach ZwReadFile");
-        /*litime.HighPart=0;
-        litime.LowPart=time;*/
 
         PLARGE_INTEGER pli=NULL;
 
@@ -268,7 +256,6 @@ public:
     {
         KEYBOARD_INPUT_DATA kid;
         kid.MakeCode=0;
-        //char *buffer=(char*)malloc(100);
         char buffer[100];
         while(kid.MakeCode!=1)
         {
@@ -285,11 +272,6 @@ public:
         }
         println("Keyboardtest beendet");
     }
-    /*void setColor(unsigned int color)
-    {
-        DbgBreakPoint();
-        InbvSetTextColor(color);
-    }*/
     void resetKeyboard()
     {
         debugout("Clearing Event");
@@ -304,12 +286,6 @@ int __cdecl _purecall()
     return 0;
 }
 
-/*void setColor(IO &io,char *args)
-{
-    unsigned int i=0;
-    sscanf(args,"%u",&i);
-    ((NativeBootIO&)io).setColor(i);
-}*/
 void debugBreak(IO &io,char *args)
 {
     DbgBreakPoint();
@@ -426,18 +402,17 @@ extern "C" void NtProcessStartup(::PPEB peb )
 
     Main main(io,argc,arguments);
 
-    //main.addCommand("loaddll",loaddll);
-    //main.addCommand("dll",getdllhandle);
     main.addCommand("break",debugBreak);
     main.addCommand("setComputerNameFromFile",setCompnameFromFile);
-    //main.addCommand("getproc",getproc);
     main.addCommand("setComputerName",setComputerNameCmd);
 
     main.showSplashScreen();
 
+#ifdef INTERACTIVE
     if (startupWithKey(io,2,'v'))
         main.rpl();
     else
+#endif
         setCompnameFromFile(io,0);
 
     NtTerminateProcess( NtCurrentProcess(), 0 );
