@@ -391,22 +391,22 @@ bool startupWithKey(NativeBootIO &io,int maxtime,char key) //maxtime in seconds
 }
 extern "C" void NtProcessStartup(::PPEB peb )
 {
-    NativeBootIO io;
-    myIO=&io;
+	NativeBootIO io;
+	myIO=&io;
 
 	UNICODE_STRING &cmdLine = peb->ProcessParameters->CommandLine;
 
-    char **arguments;
-    int argc;
-    arguments=split_args(io,cmdLine.Buffer,cmdLine.Length/2,&argc);
+	char **arguments;
+	int argc;
+	arguments=split_args(io,cmdLine.Buffer,cmdLine.Length/2,&argc);
 
-    Main main(io,argc,arguments);
+	Main main(io,argc,arguments);
 
-    main.addCommand("break",debugBreak);
-    main.addCommand("setComputerNameFromFile",setCompnameFromFile);
-    main.addCommand("setComputerName",setComputerNameCmd);
+	main.addCommand("break",debugBreak);
+	main.addCommand("setComputerNameFromFile",setCompnameFromFile);
+	main.addCommand("setComputerName",setComputerNameCmd);
 
-    main.showSplashScreen();
+	main.showSplashScreen();
 
 #ifdef INTERACTIVE
     if (startupWithKey(io,2,'v'))
