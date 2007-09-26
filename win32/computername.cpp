@@ -301,40 +301,40 @@ wchar_t *readComputerNameFromFile(IO &io,wchar_t *fileName)
 {
 	Indenter i(io);
 	NTSTATUS Status;
-    UNICODE_STRING UnicodeFilespec;
-    OBJECT_ATTRIBUTES ObjectAttributes;
-    HANDLE FileHandle;
-    IO_STATUS_BLOCK Iosb;
-    char *buffer;
-    PWCHAR buffer2;
-    ULONG converted;
+	UNICODE_STRING UnicodeFilespec;
+	OBJECT_ATTRIBUTES ObjectAttributes;
+	HANDLE FileHandle;
+	IO_STATUS_BLOCK Iosb;
+	char *buffer;
+	PWCHAR buffer2;
+	ULONG converted;
 
 	RtlInitUnicodeString(&UnicodeFilespec,fileName);
 
-    InitializeObjectAttributes(&ObjectAttributes,           // ptr to structure
-                               &UnicodeFilespec,            // ptr to file spec
-                               OBJ_CASE_INSENSITIVE,        // attributes
-                               NULL,                        // root directory handle
-                               NULL );                      // ptr to security descriptor
+	InitializeObjectAttributes(&ObjectAttributes,           // ptr to structure
+							   &UnicodeFilespec,            // ptr to file spec
+							   OBJ_CASE_INSENSITIVE,        // attributes
+							   NULL,                        // root directory handle
+							   NULL );                      // ptr to security descriptor
 
-    Status = ZwCreateFile(&FileHandle,                      // returned file handle
-                          (GENERIC_READ | SYNCHRONIZE),    // desired access
-                          &ObjectAttributes,                // ptr to object attributes
-                          &Iosb,                            // ptr to I/O status block
-                          0,                                // allocation size
-                          FILE_ATTRIBUTE_NORMAL,            // file attributes
-                          0,                                // share access
-                          FILE_OPEN,                   // create disposition
-                          FILE_SYNCHRONOUS_IO_NONALERT,     // create options
-                          NULL,                             // ptr to extended attributes
-                          0);                               // length of ea buffer
+	Status = ZwCreateFile(&FileHandle,                      // returned file handle
+						  (GENERIC_READ | SYNCHRONIZE),    // desired access
+						  &ObjectAttributes,                // ptr to object attributes
+						  &Iosb,                            // ptr to I/O status block
+						  0,                                // allocation size
+						  FILE_ATTRIBUTE_NORMAL,            // file attributes
+						  0,                                // share access
+						  FILE_OPEN,                   // create disposition
+						  FILE_SYNCHRONOUS_IO_NONALERT,     // create options
+						  NULL,                             // ptr to extended attributes
+						  0);                               // length of ea buffer
 
 	CHECK_STATUSA(Status,Öffnen der Computernamensdatei)
 	RETURN_NULL_IF_STATUS_UNSUCCESSFULL
 
 	buffer = (char*)io.malloc(256);//RtlAllocateHeap( Heap, 0, 256 );
-    Status = ZwReadFile(FileHandle,0,NULL,NULL,&Iosb,buffer,256,0,NULL);
-    ((char*)buffer)[Iosb.Information]=0;
+	Status = ZwReadFile(FileHandle,0,NULL,NULL,&Iosb,buffer,256,0,NULL);
+	((char*)buffer)[Iosb.Information]=0;
 
 	CHECK_STATUSA(Status,Lesen des Computernamens);
 	RETURN_NULL_IF_STATUS_UNSUCCESSFULL
