@@ -34,7 +34,7 @@ char **split_args(IO &io,wchar_t* cmdLine,int length,int *pargc)
 	int argNo=0;
 	for (int i=0;i<=length;i++)
 	{
-		wchar_t ch=*(cmdLine+i);
+		wchar_t ch= i<length ? *(cmdLine+i) : 0;
 		if (ch==L' '||ch==0)
 		{
 			int argLength=i-last;

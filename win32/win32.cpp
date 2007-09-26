@@ -58,10 +58,21 @@ void wurst(IO &io,char *cmd)
 	io.println(cmd);
 }
 
-char** testSplitArgs(IO &io,int*argc){
+void splitArgs(IO &io,char *args){
+	if (strlen(args)==0)
+		return;
+
+	int argc;
 	UNICODE_STRING str;
-	NT::RtlInitUnicodeString(&str,L"test test2\0 test3");
-	return split_args(io,str.Buffer,str.Length/2,argc);
+	wchar_t *wstr;
+	char buffer[100];
+	wstr=(wchar_t*)buffer;
+	mbstowcs(wstr,args,50);
+	NT::RtlInitUnicodeString(&str,wstr);
+	str.Length-=2;
+	char **argv=split_args(io,str.Buffer,str.Length/2,&argc);
+	for (int i=0;i<argc;i++)
+		io.println(argv[i]);
 }
 
 void setCompnameFromFile(IO &io,char *args);
@@ -84,6 +95,7 @@ int __cdecl main(int argc, _TCHAR* argv[])
 	main.addCommand("testString",testStringFunctions);
 
 	main.addCommand("testMatcher",testMatcher);
+	main.addCommand("splitArgs",splitArgs);
 
 	main.run();
 }
