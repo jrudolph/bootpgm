@@ -52,19 +52,32 @@ void setRegistryValue(IO &io,WCHAR *keyName,WCHAR *valueName,WCHAR *value)
 	// Open the Software key
 	//
 	NT::RtlInitUnicodeString(&KeyName,keyName);
-	InitializeObjectAttributes( &ObjectAttributes, &KeyName,
-			OBJ_CASE_INSENSITIVE, NULL, NULL );
-	Status = ZwCreateKey( &SoftwareKeyHandle, KEY_ALL_ACCESS,
-					&ObjectAttributes, 0,  NULL, REG_OPTION_NON_VOLATILE,
-					&Disposition );
+	InitializeObjectAttributes(
+		&ObjectAttributes,
+		&KeyName,
+		OBJ_CASE_INSENSITIVE,
+		NULL,
+		NULL);
+	Status = ZwCreateKey(
+		&SoftwareKeyHandle,
+		KEY_ALL_ACCESS,
+		&ObjectAttributes,
+		0,
+		NULL,
+		REG_OPTION_NON_VOLATILE,
+		&Disposition);
 
 	CHECK_STATUS(Status,Öffnen des Schlüssels)
 
 	NT::RtlInitUnicodeString(&ValueName,valueName);
 
-	Status = ZwSetValueKey( SoftwareKeyHandle, &ValueName, 0, REG_SZ,
-						value,
-						(wcslen( value )+1) * sizeof(WCHAR) );
+	Status = ZwSetValueKey(
+		SoftwareKeyHandle,
+		&ValueName,
+		0,
+		REG_SZ,
+		value,
+		(wcslen( value )+1) * sizeof(WCHAR));
 
 	CHECK_STATUSA(Status,Setzen des Schlüssels);
 
@@ -311,23 +324,25 @@ wchar_t *readComputerNameFromFile(IO &io,wchar_t *fileName)
 
 	RtlInitUnicodeString(&UnicodeFilespec,fileName);
 
-	InitializeObjectAttributes(&ObjectAttributes,           // ptr to structure
-							   &UnicodeFilespec,            // ptr to file spec
-							   OBJ_CASE_INSENSITIVE,        // attributes
-							   NULL,                        // root directory handle
-							   NULL );                      // ptr to security descriptor
+	InitializeObjectAttributes(
+		&ObjectAttributes,           // ptr to structure
+		&UnicodeFilespec,            // ptr to file spec
+		OBJ_CASE_INSENSITIVE,        // attributes
+		NULL,                        // root directory handle
+		NULL );                      // ptr to security descriptor
 
-	Status = ZwCreateFile(&FileHandle,                      // returned file handle
-						  (GENERIC_READ | SYNCHRONIZE),    // desired access
-						  &ObjectAttributes,                // ptr to object attributes
-						  &Iosb,                            // ptr to I/O status block
-						  0,                                // allocation size
-						  FILE_ATTRIBUTE_NORMAL,            // file attributes
-						  0,                                // share access
-						  FILE_OPEN,                   // create disposition
-						  FILE_SYNCHRONOUS_IO_NONALERT,     // create options
-						  NULL,                             // ptr to extended attributes
-						  0);                               // length of ea buffer
+	Status = ZwCreateFile(
+		&FileHandle,					// returned file handle
+		(GENERIC_READ | SYNCHRONIZE),   // desired access
+		&ObjectAttributes,              // ptr to object attributes
+		&Iosb,                          // ptr to I/O status block
+		0,                              // allocation size
+		FILE_ATTRIBUTE_NORMAL,          // file attributes
+		0,                              // share access
+		FILE_OPEN,						// create disposition
+		FILE_SYNCHRONOUS_IO_NONALERT,   // create options
+		NULL,                           // ptr to extended attributes
+		0);                             // length of ea buffer
 
 	CHECK_STATUSA(Status,Öffnen der Computernamensdatei)
 	RETURN_NULL_IF_STATUS_UNSUCCESSFULL
