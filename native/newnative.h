@@ -197,5 +197,37 @@ extern "C"{
 	NTSYSAPI NTSTATUS NTAPI NtClearEvent(HANDLE Eventhandle);
 	NTSYSAPI NTSTATUS NTAPI NtCancelIoFile(HANDLE Filehandle, PIO_STATUS_BLOCK IoStatusBlock);
 
+	typedef enum _OBJECT_INFORMATION_CLASS
+	{
+		ObjectBasicInformation,			// Result is OBJECT_BASIC_INFORMATION structure
+		ObjectNameInformation,			// Result is OBJECT_NAME_INFORMATION structure
+		ObjectTypeInformation,			// Result is OBJECT_TYPE_INFORMATION structure
+		ObjectAllInformation,			// Result is OBJECT_ALL_INFORMATION structure
+		ObjectDataInformation			// Result is OBJECT_DATA_INFORMATION structure
+		
+	} OBJECT_INFORMATION_CLASS, *POBJECT_INFORMATION_CLASS;
 
+	NTSYSAPI 
+	NTSTATUS
+	NTAPI
+	NtQueryObject(
+		HANDLE               ObjectHandle,
+		OBJECT_INFORMATION_CLASS ObjectInformationClass,
+		PVOID               ObjectInformation,
+		ULONG                Length,
+		PULONG              ResultLength );
+	
+	typedef struct _OBJECT_BASIC_INFORMATION {
+		ULONG                   Attributes;
+		ACCESS_MASK             GrantedAccess;
+		ULONG                   HandleCount;
+		ULONG                   ReferenceCount;
+		ULONG                   PagedPoolQuota;
+		ULONG                   NonPagedPoolQuota;
+		ULONG					Unknown[3];
+		ULONG					NameInformationLength;
+		ULONG					TypeInformationLength;
+		ULONG					SecurityDescriptorLength;
+		LARGE_INTEGER			CreateTime;
+	} OBJECT_BASIC_INFORMATION, *POBJECT_BASIC_INFORMATION;
 }
