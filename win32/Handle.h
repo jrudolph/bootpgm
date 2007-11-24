@@ -23,6 +23,10 @@ public:
 		return buffer;
 	}
 	UnicodeString operator+(UnicodeString&str2);
+	UnicodeString operator+(wchar_t *ch)
+	{
+		return *this + UnicodeString(ch);
+	}
 
 	friend UnicodeString operator+(wchar_t* ch,UnicodeString str)
 	{

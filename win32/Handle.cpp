@@ -2,6 +2,18 @@
 #include "Handle.h"
 #include "main.h"
 
+#define CHECKER(status) ::handle(status, __FILE__ ,TOSTRING(__LINE__));
+
+void handle(ULONG status,char *file,char *line)
+{
+	if (status!=STATUS_SUCCESS)
+	{
+		char *buffer=new char[5000];
+		sprintf_s(buffer,5000,"Fehler in %s Zeile %s: 0x%X",file,line,status);
+		throw buffer;
+	}
+}
+
 void debug(char *msg)
 {
 	mainSingleton->get_io().debugout(msg);
@@ -10,7 +22,7 @@ void debug(char *msg)
 WinObject::~WinObject()
 {
 	char buffer[500];
-	debug((L"Closing Handle to " + get_name()).chars(buffer,500));
+	debug((L"Closing Handle to '" + get_name() + L"'" ).chars(buffer,500));
 	ZwClose(handle);
 }
 
@@ -24,6 +36,8 @@ UnicodeString WinObject::get_name()
 		,sizeof(info)
 		,0);
 	
+	CHECKER(status);
+
 	int len=info.NameInformationLength;
 
 	len = len==0? 500 : len;
@@ -37,6 +51,9 @@ UnicodeString WinObject::get_name()
 			,poni
 			,len
 			,0);
+
+		CHECKER(status);
+
 		return UnicodeString::from_unicode(poni->Name);
 	}
 	else
@@ -52,9 +69,9 @@ UnicodeString::UnicodeString(const wchar_t *chars)
 	string.MaximumLength=string.Length;
 	memcpy(buffer,chars,len*2);
 
-	debug("UnicodeString created:");
-	char *buffer2=new char[500];
-	debug(this->chars(buffer2,500));
+	/*debug("UnicodeString created:");
+	char buffer2[500];
+	debug(this->chars(buffer2,500));*/
 }
 UnicodeString & UnicodeString::operator=(wchar_t *chars)
 {
@@ -74,9 +91,9 @@ UnicodeString & UnicodeString::operator=(wchar_t *chars)
 }
 UnicodeString::~UnicodeString()
 {
-	debug("UnicodeString deleted:");
-	char *buffer=new char[500];
-	debug(this->chars(buffer,500));
+	//debug("UnicodeString deleted:");
+	//char buffer[500];
+	//debug(this->chars(buffer,500));
 
 	delete string.Buffer;
 }
@@ -107,6 +124,8 @@ int RegKey::get_value(UnicodeString &path,PULONG type,void *buffer,int length)
 		,pinfo
 		,len
 		,&read);
+
+	CHECKER(status)
 
 	memcpy(buffer,pinfo->Data,pinfo->DataLength);
 	*type = pinfo->Type;
@@ -151,15 +170,17 @@ HANDLE RegKey::open_key(UnicodeString &path)
 		REG_OPTION_NON_VOLATILE,
 		&Disposition);
 
+	CHECKER(status);
+
 	return status == STATUS_SUCCESS? h : 0;
 }
 
 void testRegKey(IO &io,char *args)
 {
-	RegKey k(L"Machine\\SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ComputerName");
+	RegKey k(L"Machine\\SYSTEM\\CurrentContro4lSet\\Control\\ComputerName\\ComputerName");
 	UnicodeString res(L"");
 	k.get_string_value(UnicodeString(L"ComputerName"),res);
 
-	char *buffer=new char[500];
+	char buffer[500];
 	io.println(res.chars(buffer,500));
 }

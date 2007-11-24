@@ -122,7 +122,13 @@ void Main::rpl()
 			
 			if (strlen(buffer)>=length&&strstr(buffer,cmd)!=0&&(buffer[length]==0||buffer[length]==' '))
 			{
-				commands[i].func(io,buffer+strlen(commands[i].name));
+				try{
+					commands[i].func(io,buffer+strlen(commands[i].name));
+				}
+				catch(char *exp){
+					io.print("Fehler: ");
+					io.println(exp);
+				}
 				break;
 			}
 		}
