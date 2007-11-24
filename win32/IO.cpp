@@ -119,11 +119,11 @@ void IO::handleStatus(NT::NTSTATUS status,char *place,char *file,char *line,bool
 }
 inline void IO::debugout(char *string)
 {
-#ifdef DEBUGGING
+//#ifdef DEBUGGING
 	print("[debug] ");
 	println(string);
-	NT::DbgPrint("[bootpgm] %s\n",string);*/
-#endif
+	NT::DbgPrint("[bootpgm] %s\n",string);
+//#endif
 }
 
 void IO::setIndent(unsigned char indent)

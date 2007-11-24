@@ -36,11 +36,11 @@ public:
 	}
 	void *malloc(unsigned int length)
 	{
-		return new char[length];
+		return ::malloc(length);
 	}
 	void free(void *buffer)
 	{
-		delete buffer;
+		::free(buffer);
 	}
 	void handleCharEcho(char ch,char *buffer,unsigned int length)
 	{
@@ -81,6 +81,8 @@ void initFileTools(IO *io);
 void testStringFunctions(IO &io,char *args);
 void testMatcher(IO &io,char *args);
 
+void testRegKey(IO &io,char *args);
+
 int __cdecl main(int argc, _TCHAR* argv[])
 {
 	UsermodeIO io;
@@ -96,6 +98,8 @@ int __cdecl main(int argc, _TCHAR* argv[])
 
 	main.addCommand("testMatcher",testMatcher);
 	main.addCommand("splitArgs",splitArgs);
+
+	main.addCommand("regTest",testRegKey);
 
 	main.run();
 }

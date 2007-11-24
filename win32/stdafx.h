@@ -30,6 +30,7 @@
 #include <tchar.h>
 #include <string.h>
 #include <stdlib.h>
+#include <malloc.h>
 
 namespace NT {
 	extern "C" {

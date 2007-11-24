@@ -160,3 +160,16 @@ void Main::addCommand(char *name,invokeFunc func)
 
 	funcc++;
 }
+
+void* operator new(size_t sz) {
+	IO& io=mainSingleton->get_io();
+	//io.println("operator new called");
+	void* m = io.malloc(sz);
+	if(!m) puts("out of memory");
+	return m;
+}
+
+void operator delete(void* m) {
+  //puts("operator delete called");
+	mainSingleton->get_io().free(m);
+}

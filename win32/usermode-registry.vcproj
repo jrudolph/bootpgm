@@ -251,7 +251,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Container.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\directory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Handle.cpp"
 				>
 			</File>
 			<File
@@ -301,6 +309,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\Container.h"
+				>
+			</File>
+			<File
 				RelativePath=".\directory.h"
 				>
 			</File>
@@ -309,11 +321,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Handle.h"
+				>
+			</File>
+			<File
 				RelativePath=".\IO.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Main.h"
+				>
+			</File>
+			<File
+				RelativePath="..\native\newnative.h"
 				>
 			</File>
 			<File

@@ -43,6 +43,7 @@ public:
 	void rpl();
 	void addCommand(char *name,invokeFunc func);
 	void showSplashScreen();
+	IO &get_io(){return io;}
 private:
 	friend void showCmds(IO &io,char *args);
 	friend void showArgs(IO &io,char *args);
