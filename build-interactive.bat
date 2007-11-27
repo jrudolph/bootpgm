@@ -1,2 +1,2 @@
 set cl=/DINTERACTIVE
-build -cg
+build -cgw
