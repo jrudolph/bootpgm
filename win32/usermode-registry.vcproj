@@ -251,14 +251,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Container.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\directory.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Handle.cpp"
 				>
 			</File>
@@ -299,6 +291,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\tests.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\win32.cpp"
 				>
 			</File>
@@ -308,18 +304,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\Container.h"
-				>
-			</File>
-			<File
-				RelativePath=".\directory.h"
-				>
-			</File>
-			<File
-				RelativePath=".\file.h"
-				>
-			</File>
 			<File
 				RelativePath=".\Handle.h"
 				>
@@ -338,10 +322,6 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath=".\string-tools.h"
 				>
 			</File>
 		</Filter>

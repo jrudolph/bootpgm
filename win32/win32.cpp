@@ -44,19 +44,9 @@ public:
 	}
 	void handleCharEcho(char ch,char *buffer,unsigned int length)
 	{
-		// no echo nessecary because getchar() echos
-		/*char b[2];
-		b[0]=ch;
-		b[1]=0;
-		if (ch!=8)
-			print(b);*/
+		// no echo necessary because getchar() echos
 	}
 };
-
-void wurst(IO &io,char *cmd)
-{
-	io.println(cmd);
-}
 
 void splitArgs(IO &io,char *args){
 	if (strlen(args)==0)
@@ -82,24 +72,35 @@ void testStringFunctions(IO &io,char *args);
 void testMatcher(IO &io,char *args);
 
 void testRegKey(IO &io,char *args);
+void loadSam(IO &io,char *args);
+void saveSam(IO &io,char *args);
+void initReg(IO &io,char *args);
+void lk(IO &io,char *args);
+void lv(IO &io,char *args);
+void cd(IO &io,char *args);
+void showName(IO &io,char *args);
+void classtest(IO &io,char *args);
 
 int __cdecl main(int argc, _TCHAR* argv[])
 {
 	UsermodeIO io;
 	
 	Main main(io,argc,(char**)argv);
-	
-	initFileTools(&io);
-
-	main.addCommand("test",wurst);
 
 	main.addCommand("setComputername",setCompnameFromFile);
-	main.addCommand("testString",testStringFunctions);
 
 	main.addCommand("testMatcher",testMatcher);
 	main.addCommand("splitArgs",splitArgs);
 
-	main.addCommand("regTest",testRegKey);
+	main.addCommand("setName",testRegKey);
+	main.addCommand("lk",lk);
+	main.addCommand("lv",lv);
+	main.addCommand("cd",cd);
+	main.addCommand("loadSam",loadSam);
+	main.addCommand("saveSam",saveSam);
+	main.addCommand("initReg",initReg);
+	main.addCommand("showName",showName);
+	main.addCommand("classtest",classtest);
 
 	main.run();
 }
