@@ -20,10 +20,13 @@ void handle(ULONG status,char *file,char *line)
 
 WinObject::~WinObject()
 {
-	char buffer[500];
-	debug((L"Closing Handle to '" + get_name() + L"'" ).chars(buffer,500));
-	ULONG status = ZwClose(handle);
-	CHECKER(status)
+	if (valid())
+	{
+		char buffer[500];
+		debug((L"Closing Handle to '" + get_name() + L"'" ).chars(buffer,500));
+		ULONG status = ZwClose(handle);
+		CHECKER(status)
+	}
 }
 
 UnicodeString WinObject::get_name()
@@ -210,8 +213,6 @@ HANDLE RegKey::open_key(HANDLE parent,UnicodeString &path)
 		char buffer[1000];
 		io.println(path.chars(buffer,sizeof(buffer)));
 	}
-
-	CHECKER(status);
 
 	return status == STATUS_SUCCESS? h : 0;
 }
