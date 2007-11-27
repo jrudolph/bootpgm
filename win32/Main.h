@@ -24,6 +24,8 @@ typedef void (*invokeFunc)(IO &io,char *args);
 struct command{
 	invokeFunc func;
 	char *name;
+	char *description;
+	char *help;
 };
 
 class Main
@@ -36,12 +38,20 @@ class Main
 
 	char** argv;
 	int argc;
+
+	static void help(IO &io,char *args);
+	static void showCmds(IO &io,char *args);
+	static void showArgs(IO &io,char *args);
+
+	command *findCommand(char *name);
 public:
 	Main(IO &io,int argc,char** argv);
 	void run();
 	~Main(void);
 	void rpl();
 	void addCommand(char *name,invokeFunc func);
+	void addCommand(char *name,invokeFunc func,char *desc,char *help);
+
 	void showSplashScreen();
 	IO &get_io(){return io;}
 private:

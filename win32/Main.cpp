@@ -51,7 +51,7 @@ char **split_args(IO &io,wchar_t* cmdLine,int length,int *pargc)
 	return argv;
 }
 
-void showCmds(IO &io,char *args)
+void Main::showCmds(IO &io,char *args)
 {
 	if (mainSingleton!=NULL)
 	{
@@ -59,12 +59,15 @@ void showCmds(IO &io,char *args)
 		Indenter i(io);
 		for (int i=0;i<mainSingleton->funcc;i++)
 		{
-			io.println(mainSingleton->commands[i].name);
+			command &c=mainSingleton->commands[i];
+			char buffer[100];
+			_snprintf(buffer,100,"%-20s | %-50s",c.name,c.description ? c.description : "");
+			io.println(buffer);
 		}
 	}
 }
 
-void showArgs(IO &io,char *args)
+void Main::showArgs(IO &io,char *args)
 {
 	if (mainSingleton!=NULL)
 	{
@@ -72,15 +75,52 @@ void showArgs(IO &io,char *args)
 		Indenter i(io);
 		for (int i=0;i<mainSingleton->argc;i++)
 		{
-			io.println((char*)mainSingleton->argv[i]);
+			char buffer[100];
+			_snprintf(buffer,100,"[%d] %-70s",i,(char*)mainSingleton->argv[i]);
+			io.println(buffer);
 		}
 	}
 }
 
+void Main::help(IO &io,char *args)
+{
+	if (!*args)
+	{
+		help(io," help");
+		return;
+	}
+
+	command *cmd = mainSingleton->findCommand(&args[1]);
+	if (!cmd)
+	{
+		io.println("Command not found");
+		return;
+	}
+
+	io.println(cmd->help ? cmd->help : "No help entry available");
+}
+
+command *Main::findCommand(char *name)
+{
+	for(int i=0;i<funcc;i++)
+		if (strstr(name,commands[i].name)==name)
+			return &commands[i];
+
+	return 0;
+}
+
 Main::Main(IO &io,int argc,char** argv):io(io),funcc(0),argv(argv),argc(argc)
 {
-	addCommand("showCmds",showCmds);
-	addCommand("showArgs",showArgs);
+	addCommand("cmds",showCmds
+		,"Show all available commands"
+		,"Usage: cmds\nShow all available commands");
+	addCommand("showArgs",showArgs
+		,"Show the arguments of the program"
+		,"Usage: showArgs\nShow the arguments of the program");
+	addCommand("help",help
+		,"Show the help entry for a command"
+		,"Usage: help <command>\nShow help entries for command if available");
+
 	if (mainSingleton!=NULL)
 	{
 		io.println("Error: Main may be instantiated only once");
@@ -106,38 +146,19 @@ void Main::rpl()
 {
 	io.println("Starting RPL (Read-Print-Loop) Type \"exit\" to stop.");
 
-	char *buffer=(char*)io.malloc(100);
+	char buffer[100];
 	buffer[0]=0;
 
 	while (strcmp(buffer,"exit")!=0)
 	{
 		io.print("rpl> ");
 		io.readln(buffer,100);
-		io.debugout("reaching command checking");
-		int i;
-		for(i=0;i<funcc;i++)
-		{
-			char *cmd=commands[i].name;
-			unsigned int length=strlen(cmd);
-			
-			if (strlen(buffer)>=length&&strstr(buffer,cmd)!=0&&(buffer[length]==0||buffer[length]==' '))
-			{
-				try{
-					commands[i].func(io,buffer+strlen(commands[i].name));
-				}
-				catch(char *exp){
-					io.print("Fehler: ");
-					io.println(exp);
-				}
-				break;
-			}
-		}
 
-		if (i>=funcc)
-		{
-			io.print("Befehl konnte nicht gefunden werden: ");
-			io.println(buffer);
-		}
+		command *cmd=findCommand(buffer);
+		if (cmd)
+			cmd->func(io,buffer + strlen(cmd->name));
+		else
+			io.println("Command not found");
 	}
 
 	io.println("Exiting RPL");
@@ -152,6 +173,11 @@ void Main::showSplashScreen()
 
 void Main::addCommand(char *name,invokeFunc func)
 {
+	addCommand(name,func,0,0);
+}
+
+void Main::addCommand(char *name,invokeFunc func,char *desc,char *help)
+{
 	if (funcc>=maxFuncs)
 	{
 		io.println("Es kann kein neues Kommando hinzugefügt werden");
@@ -161,21 +187,24 @@ void Main::addCommand(char *name,invokeFunc func)
 	command c;
 	c.func=func;
 	c.name=name;
+	c.description=desc;
+	c.help=help;
 
 	commands[funcc]=c;
 
 	funcc++;
 }
 
-void* operator new(size_t sz) {
+void* __cdecl operator new(size_t sz) {
 	IO& io=mainSingleton->get_io();
-	//io.println("operator new called");
-	void* m = io.malloc(sz);
-	if(!m) puts("out of memory");
+	void* m = io.malloc((unsigned int)sz);
+
+	if(!m) 
+		io.println("out of memory");
+
 	return m;
 }
 
-void operator delete(void* m) {
-  //puts("operator delete called");
+void __cdecl operator delete(void* m) {
 	mainSingleton->get_io().free(m);
 }
