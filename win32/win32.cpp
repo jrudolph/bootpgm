@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "io.h"
 #include "main.h"
+#include "registrybrowser.h"
 
 class UsermodeIO:public IO{
 public:
@@ -71,15 +72,7 @@ void initFileTools(IO *io);
 void testStringFunctions(IO &io,char *args);
 void testMatcher(IO &io,char *args);
 
-void testRegKey(IO &io,char *args);
-void loadSam(IO &io,char *args);
-void saveSam(IO &io,char *args);
-void initReg(IO &io,char *args);
-void lk(IO &io,char *args);
-void lv(IO &io,char *args);
-void cd(IO &io,char *args);
-void showName(IO &io,char *args);
-void classtest(IO &io,char *args);
+void register_experimental_cmds(Main &main);
 
 int __cdecl main(int argc, _TCHAR* argv[])
 {
@@ -87,20 +80,13 @@ int __cdecl main(int argc, _TCHAR* argv[])
 	
 	Main main(io,argc,(char**)argv);
 
+	RegistryBrowser browser(main);
+	register_experimental_cmds(main);
+
 	main.addCommand("setComputername",setCompnameFromFile);
 
 	main.addCommand("testMatcher",testMatcher);
 	main.addCommand("splitArgs",splitArgs);
-
-	main.addCommand("setName",testRegKey);
-	main.addCommand("lk",lk);
-	main.addCommand("lv",lv);
-	main.addCommand("cd",cd);
-	main.addCommand("loadSam",loadSam);
-	main.addCommand("saveSam",saveSam);
-	main.addCommand("initReg",initReg);
-	main.addCommand("showName",showName);
-	main.addCommand("classtest",classtest);
 
 	main.run();
 }

@@ -51,6 +51,20 @@ char **split_args(IO &io,wchar_t* cmdLine,int length,int *pargc)
 	return argv;
 }
 
+void command::invoke(IO &io,char *args)
+{
+	if (pObject)
+	{
+		// ugly hack to make member pointer working as needed...
+		Main *p=(Main*)pObject;
+		void(Main::*f)(IO&,char*)=*reinterpret_cast<void(Main::**)(IO&,char*)>(&func);
+		(p->*f)(io,args);
+	}
+	else
+		func(io,args);
+}
+
+
 void Main::showCmds(IO &io,char *args)
 {
 	io.println("Available commands:");
@@ -105,13 +119,13 @@ command *Main::findCommand(char *name)
 
 Main::Main(IO &io,int argc,char** argv):io(io),funcc(0),argv(argv),argc(argc)
 {
-	addCommand("cmds",*this,&Main::showCmds
+	addCommand("cmds",make_dg(this,&Main::showCmds)
 		,"Show all available commands"
 		,"Usage: cmds\nShow all available commands");
-	addCommand("showArgs",*this,&Main::showArgs
+	addCommand("showArgs",make_dg(this,&Main::showArgs)
 		,"Show the arguments of the program"
 		,"Usage: showArgs\nShow the arguments of the program");
-	addCommand("help",*this,&Main::help
+	addCommand("help",make_dg(this,&Main::help)
 		,"Show the help entry for a command"
 		,"Usage: help <command>\nShow help entries for command if available");
 
@@ -185,10 +199,9 @@ void Main::addCommand(char *name,invokeFunc func,char *desc,char *help,void*pObj
 	funcc++;
 }
 
-template<typename T>void Main::addCommand(char *name,T &object,void(T::*func)(IO&,char*),char *desc,char *help)
+void Main::addCommand(char *name,deleg dg,char *desc,char *help)
 {
-	void **p=(void**)&func;
-	addCommand(name,(invokeFunc)*p,desc,help,&object);
+	addCommand(name,(invokeFunc)dg.func,desc,help,dg.object);
 }
 
 

@@ -1,11 +1,13 @@
 TARGETNAME=common
 TARGETPATH=../obj
 TARGETTYPE=LIBRARY
+#USE_NATIVE_EH=
+#USE_RTTI=
 #TARGETTYPE=PROGRAM
 
-TARGETLIBS=\
-        $(DDK_LIB_PATH)\ntdll.lib
-#        $(DDK_LIB_PATH)\libc.lib \
+TARGETLIBS=$(DDK_LIB_PATH)\ntdll.lib
+#        $(DDK_LIB_PATH)\libc.lib
+#	$(DDK_LIB_PATH)\msvcrt.lib
 
 
 INCLUDES=$(SDK_INC_PATH);$(DDK_INC_PATH);
@@ -13,7 +15,11 @@ SOURCES=io.cpp \
         main.cpp \
         stdafx.cpp \
         computername.cpp \
-        win32.cpp
+		tests.cpp \
+		registrybrowser.cpp \
+		experimental.cpp \
+		account.cpp \
+		handle.cpp
 
 #UMTYPE=console
 #UMBASE=0x400000

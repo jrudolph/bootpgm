@@ -247,7 +247,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\account.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\computername.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\experimental.cpp"
 				>
 			</File>
 			<File
@@ -260,6 +268,10 @@
 			</File>
 			<File
 				RelativePath=".\Main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RegistryBrowser.cpp"
 				>
 			</File>
 			<File
@@ -305,6 +317,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\account.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Handle.h"
 				>
 			</File>
@@ -321,6 +337,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RegistryBrowser.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
@@ -333,6 +353,10 @@
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\SOURCES"
 			>
 		</File>
 	</Files>

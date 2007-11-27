@@ -27,19 +27,23 @@ struct command{
 	char *name;
 	char *description;
 	char *help;
-	void invoke(IO &io,char *args)
-	{
-		if (pObject)
-		{
-			// ugly hack to make member pointer working as needed...
-			command *p=(command*)pObject;
-			void(command::*f)(IO&,char*)=*reinterpret_cast<void(command::**)(IO&,char*)>(&func);
-			(p->*f)(io,args);
-		}
-		else
-			func(io,args);
-	}
+	void invoke(IO &io,char *args);
 };
+
+struct deleg
+{
+	void *func;
+	void *object;
+};
+
+// template to create a command delegate
+template<class T> deleg make_dg(T *t,void(T::*func)(IO&,char*))
+{
+	deleg dg;
+	dg.func = *(void**)&func;
+	dg.object = t;
+	return dg;
+}
 
 class Main
 {
@@ -65,7 +69,7 @@ public:
 	~Main(void);
 	void rpl();
 	void addCommand(char *name,invokeFunc func,char *desc=0,char *help=0,void *pObject=0);
-	template<typename T>void addCommand(char *name,T &object,void(T::*func)(IO&,char*),char *desc=0,char *help=0);
+	void addCommand(char *name,deleg d,char *desc=0,char *help=0);
 
 	void showSplashScreen();
 	IO &get_io(){return io;}
