@@ -73,7 +73,7 @@ void Main::showCmds(IO &io,char *args)
 	{
 		command &c=commands[i];
 		char buffer[100];
-		_snprintf(buffer,100,"%-20s | %-50s",c.name,c.description ? c.description : "");
+		_snprintf(buffer,100,"%-20s | %-40s",c.name,c.description ? c.description : "");
 		io.println(buffer);
 	}
 }

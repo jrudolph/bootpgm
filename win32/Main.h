@@ -62,8 +62,6 @@ class Main
 
 	command *findCommand(char *name);
 public:
-	void showCmds2(IO &io,char *args){io.println("wurst");}
-	
 	Main(IO &io,int argc,char** argv);
 	void run();
 	~Main(void);
