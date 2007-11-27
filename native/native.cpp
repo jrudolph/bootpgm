@@ -22,6 +22,8 @@
 
 #include "newnative.h"
 
+#include "registrybrowser.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -389,6 +391,9 @@ bool startupWithKey(NativeBootIO &io,int maxtime,char key) //maxtime in seconds
     clearKeyboardPipe(io);
     return res;
 }
+
+void register_experimental_cmds(Main &main);
+
 extern "C" void NtProcessStartup(::PPEB peb )
 {
 	NativeBootIO io;
@@ -401,11 +406,14 @@ extern "C" void NtProcessStartup(::PPEB peb )
 	arguments=split_args(io,cmdLine.Buffer,cmdLine.Length/2,&argc);
 
 	Main main(io,argc,arguments);
+	RegistryBrowser reg(main);
 
 	main.addCommand("break",debugBreak);
 	main.addCommand("setComputerNameFromFile",setCompnameFromFile);
 	main.addCommand("setComputerName",setComputerNameCmd);
 
+	register_experimental_cmds(main);
+	
 	main.showSplashScreen();
 
 #ifdef INTERACTIVE
