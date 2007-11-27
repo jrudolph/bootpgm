@@ -28,6 +28,9 @@ Declaration of IO and Indenter classes
 #define CHECK_STATUS(status,name) io.handleStatus(status, #name,__FILE__ ,TOSTRING(__LINE__),true);
 #define CHECK_STATUSA(status,name) io.handleStatus(status, #name,__FILE__ ,TOSTRING(__LINE__),false);
 
+#define CHECKER(status) ::handle(status, __FILE__ ,TOSTRING(__LINE__));
+void handle(ULONG status,char *file,char *line);
+
 /*
 Class: IO
 Interface for the main input/output functions, contains some helper functions
