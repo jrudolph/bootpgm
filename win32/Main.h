@@ -23,9 +23,22 @@ typedef void (*invokeFunc)(IO &io,char *args);
 
 struct command{
 	invokeFunc func;
+	void *pObject;
 	char *name;
 	char *description;
 	char *help;
+	void invoke(IO &io,char *args)
+	{
+		if (pObject)
+		{
+			// ugly hack to make member pointer working as needed...
+			command *p=(command*)pObject;
+			void(command::*f)(IO&,char*)=*reinterpret_cast<void(command::**)(IO&,char*)>(&func);
+			(p->*f)(io,args);
+		}
+		else
+			func(io,args);
+	}
 };
 
 class Main
@@ -39,18 +52,20 @@ class Main
 	char** argv;
 	int argc;
 
-	static void help(IO &io,char *args);
-	static void showCmds(IO &io,char *args);
-	static void showArgs(IO &io,char *args);
+	void help(IO &io,char *args);
+	void showCmds(IO &io,char *args);	
+	void showArgs(IO &io,char *args);
 
 	command *findCommand(char *name);
 public:
+	void showCmds2(IO &io,char *args){io.println("wurst");}
+	
 	Main(IO &io,int argc,char** argv);
 	void run();
 	~Main(void);
 	void rpl();
-	void addCommand(char *name,invokeFunc func);
-	void addCommand(char *name,invokeFunc func,char *desc,char *help);
+	void addCommand(char *name,invokeFunc func,char *desc=0,char *help=0,void *pObject=0);
+	template<typename T>void addCommand(char *name,T &object,void(T::*func)(IO&,char*),char *desc=0,char *help=0);
 
 	void showSplashScreen();
 	IO &get_io(){return io;}

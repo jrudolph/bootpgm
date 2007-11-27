@@ -53,32 +53,26 @@ char **split_args(IO &io,wchar_t* cmdLine,int length,int *pargc)
 
 void Main::showCmds(IO &io,char *args)
 {
-	if (mainSingleton!=NULL)
+	io.println("Available commands:");
+	Indenter i(io);
+	for (int i=0;i<funcc;i++)
 	{
-		io.println("Available commands:");
-		Indenter i(io);
-		for (int i=0;i<mainSingleton->funcc;i++)
-		{
-			command &c=mainSingleton->commands[i];
-			char buffer[100];
-			_snprintf(buffer,100,"%-20s | %-50s",c.name,c.description ? c.description : "");
-			io.println(buffer);
-		}
+		command &c=commands[i];
+		char buffer[100];
+		_snprintf(buffer,100,"%-20s | %-50s",c.name,c.description ? c.description : "");
+		io.println(buffer);
 	}
 }
 
 void Main::showArgs(IO &io,char *args)
 {
-	if (mainSingleton!=NULL)
+	io.println("Commandline arguments:");
+	Indenter i(io);
+	for (int i=0;i<argc;i++)
 	{
-		io.println("Commandline arguments:");
-		Indenter i(io);
-		for (int i=0;i<mainSingleton->argc;i++)
-		{
-			char buffer[100];
-			_snprintf(buffer,100,"[%d] %-70s",i,(char*)mainSingleton->argv[i]);
-			io.println(buffer);
-		}
+		char buffer[100];
+		_snprintf(buffer,100,"[%d] %-70s",i,(char*)argv[i]);
+		io.println(buffer);
 	}
 }
 
@@ -90,7 +84,7 @@ void Main::help(IO &io,char *args)
 		return;
 	}
 
-	command *cmd = mainSingleton->findCommand(&args[1]);
+	command *cmd = findCommand(&args[1]);
 	if (!cmd)
 	{
 		io.println("Command not found");
@@ -111,13 +105,13 @@ command *Main::findCommand(char *name)
 
 Main::Main(IO &io,int argc,char** argv):io(io),funcc(0),argv(argv),argc(argc)
 {
-	addCommand("cmds",showCmds
+	addCommand("cmds",*this,&Main::showCmds
 		,"Show all available commands"
 		,"Usage: cmds\nShow all available commands");
-	addCommand("showArgs",showArgs
+	addCommand("showArgs",*this,&Main::showArgs
 		,"Show the arguments of the program"
 		,"Usage: showArgs\nShow the arguments of the program");
-	addCommand("help",help
+	addCommand("help",*this,&Main::help
 		,"Show the help entry for a command"
 		,"Usage: help <command>\nShow help entries for command if available");
 
@@ -156,7 +150,7 @@ void Main::rpl()
 
 		command *cmd=findCommand(buffer);
 		if (cmd)
-			cmd->func(io,buffer + strlen(cmd->name));
+			cmd->invoke(io,buffer + strlen(cmd->name));
 		else
 			io.println("Command not found");
 	}
@@ -171,12 +165,7 @@ void Main::showSplashScreen()
 	io.println(io.getVersion());
 }
 
-void Main::addCommand(char *name,invokeFunc func)
-{
-	addCommand(name,func,0,0);
-}
-
-void Main::addCommand(char *name,invokeFunc func,char *desc,char *help)
+void Main::addCommand(char *name,invokeFunc func,char *desc,char *help,void*pObject)
 {
 	if (funcc>=maxFuncs)
 	{
@@ -189,11 +178,19 @@ void Main::addCommand(char *name,invokeFunc func,char *desc,char *help)
 	c.name=name;
 	c.description=desc;
 	c.help=help;
+	c.pObject=pObject;
 
 	commands[funcc]=c;
 
 	funcc++;
 }
+
+template<typename T>void Main::addCommand(char *name,T &object,void(T::*func)(IO&,char*),char *desc,char *help)
+{
+	void **p=(void**)&func;
+	addCommand(name,(invokeFunc)*p,desc,help,&object);
+}
+
 
 void* __cdecl operator new(size_t sz) {
 	IO& io=mainSingleton->get_io();
