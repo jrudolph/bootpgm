@@ -230,4 +230,93 @@ extern "C"{
 		ULONG					SecurityDescriptorLength;
 		LARGE_INTEGER			CreateTime;
 	} OBJECT_BASIC_INFORMATION, *POBJECT_BASIC_INFORMATION;
+
+	NTSYSAPI 
+	NTSTATUS
+	NTAPI
+	NtLoadKey(
+		POBJECT_ATTRIBUTES   DestinationKeyName,
+		POBJECT_ATTRIBUTES   HiveFileName );
+	
+	NTSYSAPI 
+	NTSTATUS
+	NTAPI
+	NtOpenProcessToken(
+		HANDLE               ProcessHandle,
+		ACCESS_MASK          DesiredAccess,
+		PHANDLE             TokenHandle );
+
+	typedef struct _TOKEN_PRIVILEGES 
+	{
+		ULONG count;
+		LUID_AND_ATTRIBUTES Privileges[1];
+	} TOKEN_PRIVILEGES, *PTOKEN_PRIVILEGES;
+
+	NTSYSAPI 
+	NTSTATUS
+	NTAPI
+	NtAdjustPrivilegesToken(
+		HANDLE               TokenHandle,
+		BOOLEAN              DisableAllPrivileges,
+		PTOKEN_PRIVILEGES    TokenPrivileges,
+		ULONG                PreviousPrivilegesLength,
+		PTOKEN_PRIVILEGES   PreviousPrivileges,
+		PULONG              RequiredLength);
+
+	NTSYSAPI 
+	NTSTATUS
+	NTAPI
+	NtUnloadKey(
+		POBJECT_ATTRIBUTES   DestinationKeyName );
+
+	NTSYSAPI 
+	NTSTATUS
+	NTAPI
+	NtFlushKey(
+		HANDLE               KeyHandle );
+
+	NTSYSAPI 
+	NTSTATUS
+	NTAPI
+	NtSaveKey(
+		HANDLE               KeyHandle,
+		HANDLE               FileHandle );
+
+	NTSYSAPI 
+	NTSTATUS
+	NTAPI
+	NtInitializeRegistry(
+		int	flag);
+
+	typedef enum _DEBUG_CONTROL_CODE {
+		DebugSysReadIoSpace = 14,
+		DebugSysWriteIoSpace = 15,
+		DebugSysReadMsr = 16,
+		DebugSysWriteMsr = 17,
+		DebugSysReadBusData = 18,
+		DebugSysWriteBusData = 19,
+	} DEBUG_CONTROL_CODE;
+
+	NTSYSAPI 
+	NTSTATUS
+	NTAPI
+	ZwSystemDebugControl(
+		DEBUG_CONTROL_CODE ControlCode,
+		PVOID InputBuffer,
+		ULONG InputBufferLength,
+		PVOID OutputBuffer,
+		ULONG OutputBufferLength,
+		PULONG ReturnLength
+	);
+
+	typedef struct _IO_STRUCT {
+		int IoAddr;			// IN: Aligned to NumBytes,I/O address
+		int Reserved1;		// Never accessed by the kernel
+		PVOID pBuffer;			// IN (write) or OUT (read): Ptr to buffer
+		int NumBytes;			// IN: # bytes to read/write. Only use 1, 2, or 4.
+		int Reserved4;		// Must be 1
+		int Reserved5;		// Must be 0
+		int Reserved6;		// Must be 1
+		int Reserved7;		// Never accessed by the kernel
+	} IO_STRUCT;
 }
