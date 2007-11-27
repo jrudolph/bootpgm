@@ -31,7 +31,7 @@ class Main
 	IO &io;
 	
 	int funcc;
-	static const int maxFuncs=10;
+	static const int maxFuncs=50;
 	command commands[maxFuncs];
 
 	char** argv;
