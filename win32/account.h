@@ -17,6 +17,8 @@ struct entry {
 
 #define USERNAME_E 1
 #define FULLNAME_E 2
+#define LANMANPW_E 13
+#define NTPW_E 14
 
 void *get_entry(char *data,unsigned int cEntries,unsigned int index,unsigned int *length);
 void *get_V_entry(char *data,unsigned int index, unsigned int *length);

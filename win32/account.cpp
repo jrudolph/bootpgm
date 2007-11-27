@@ -2,7 +2,6 @@
 
 #include "account.h"
 
-
 void *get_entry(char *data,unsigned int cEntries,unsigned int index,unsigned int *length)
 {
 	data_entry *entries = reinterpret_cast<data_entry*>(data);
