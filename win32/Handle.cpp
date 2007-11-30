@@ -66,70 +66,42 @@ UnicodeString WinObject::get_name()
 UnicodeString::UnicodeString(const wchar_t *chars)
 {
 	unsigned short len = (unsigned short)wcslen(chars);
-	wchar_t *buffer=new wchar_t[len];
-	string.Length= len * sizeof(wchar_t);
-	string.Buffer=buffer;
-	string.MaximumLength=string.Length;
-	memcpy(buffer,chars,len*2);
 
-	/*debug("UnicodeString created:");
-	char buffer2[500];
-	debug(this->chars(buffer2,500));*/
+	init_string(len);
+	memcpy(string->Buffer,chars,len*2);
 }
-UnicodeString::UnicodeString(const wchar_t *chars,unsigned int length)
+UnicodeString::UnicodeString(const wchar_t *chars,unsigned short length)
 {
-	string.Length = (USHORT)length;
-	string.MaximumLength = (USHORT)length;
-	string.Buffer = new wchar_t[length/2];
-	memcpy(string.Buffer,chars,length);
+	init_string(length/2);
+	memcpy(string->Buffer,chars,length);
 }
 UnicodeString::UnicodeString(const char *chars)
 {
-	unsigned short l=(unsigned short)strlen(chars);
-	wchar_t *wcs=new wchar_t[l];
-	mbstowcs(wcs,chars,l);
-	string.Length = l*2;
-	string.MaximumLength = l*2;
-	string.Buffer = wcs;
+	unsigned short count=(unsigned short)strlen(chars);
+
+	init_string(count);
+
+	mbstowcs(string->Buffer,chars,count);
 }
-/*UnicodeString &UnicodeString::operator=(wchar_t *chars)
-{
-	char buffer[1000];
-	_snprintf(buffer,1000,"UnicodeString = called old = %S, new = %S",string.Buffer,chars);
-	debug(buffer);
-
-	unsigned short len= (unsigned short)wcslen(chars) * 2;
-
-	if (len > string.MaximumLength)
-	{
-		delete string.Buffer;
-		string.Buffer = new wchar_t[len/2];
-		string.MaximumLength = len;
-	}
-	
-	memcpy(string.Buffer,chars,len);
-	string.Length = len;
-
-	return *this;
-}*/
 UnicodeString::~UnicodeString()
 {
-	debug("UnicodeString deleted:");
-	char buffer[500];
-	debug(this->chars(buffer,500));
-
-	delete string.Buffer;
+	if (!--*count)
+	{
+		delete []string->Buffer;
+		delete string;
+		delete count;
+	}
 }
 UnicodeString UnicodeString::operator+(UnicodeString&str2)
 {
 	UNICODE_STRING str;
 
 	str.Length = 0;
-	str.MaximumLength = string.Length + str2.string.Length;
+	str.MaximumLength = string->Length + str2.string->Length;
 	str.Buffer = new wchar_t[str.MaximumLength/2];
 
-	NT::RtlAppendUnicodeStringToString(&str,&string);
-	NT::RtlAppendUnicodeStringToString(&str,&str2.string);
+	NT::RtlAppendUnicodeStringToString(&str,string);
+	NT::RtlAppendUnicodeStringToString(&str,str2.string);
 
 	return UnicodeString(str);
 }
@@ -201,7 +173,6 @@ HANDLE RegKey::open_key(HANDLE parent,UnicodeString &path)
 		NULL);
 
 	HANDLE h;
-	ULONG Disposition;
 	ULONG status = ZwOpenKey(
 		&h,
 		KEY_ALL_ACCESS,
@@ -248,7 +219,7 @@ void RegKey::print_subkeys(IO &io)
 
 		if (status == STATUS_SUCCESS)
 		{
-			UnicodeString name(info->Name,info->NameLength);
+			UnicodeString name(info->Name,(unsigned short)info->NameLength);
 			io.println(name.chars(buffer,sizeof(buffer)));
 		}
 

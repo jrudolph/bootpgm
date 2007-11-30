@@ -72,6 +72,8 @@ void initFileTools(IO *io);
 void testStringFunctions(IO &io,char *args);
 void testMatcher(IO &io,char *args);
 
+void classtest(IO &io,char *args);
+
 void register_experimental_cmds(Main &main);
 
 int __cdecl main(int argc, _TCHAR* argv[])
@@ -87,6 +89,8 @@ int __cdecl main(int argc, _TCHAR* argv[])
 
 	main.addCommand("testMatcher",testMatcher);
 	main.addCommand("splitArgs",splitArgs);
+
+	main.addCommand("classtest",classtest);
 
 	main.run();
 }

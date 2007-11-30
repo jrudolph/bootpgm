@@ -159,9 +159,9 @@ void showName(IO &io,char *args)
 
 	char buf2[1000];
 	io.print("Name: ");
-	io.println(UnicodeString((wchar_t *)es[USERNAME_E].data,es[USERNAME_E].length).chars(buf2,sizeof(buf2)));
+	io.println(UnicodeString((wchar_t *)es[USERNAME_E].data,(unsigned short)es[USERNAME_E].length).chars(buf2,sizeof(buf2)));
 	io.print("Voller Name: ");
-	io.println(UnicodeString((wchar_t *)es[FULLNAME_E].data,es[FULLNAME_E].length).chars(buf2,sizeof(buf2)));
+	io.println(UnicodeString((wchar_t *)es[FULLNAME_E].data,(unsigned short)es[FULLNAME_E].length).chars(buf2,sizeof(buf2)));
 }
 
 void testRegKey(IO &io,char *args)
@@ -193,7 +193,7 @@ void testRegKey(IO &io,char *args)
 	entry *es=read_entries(buf,V_ENTRY_COUNT);
 
 	char buf2[1000];
-	io.println(UnicodeString((wchar_t *)es[1].data,es[1].length).chars(buf2,sizeof(buf2)));
+	io.println(UnicodeString((wchar_t *)es[1].data,(unsigned short)es[1].length).chars(buf2,sizeof(buf2)));
 
 	es[USERNAME_E].data = L"Gustav";
 	es[USERNAME_E].length = 12;
