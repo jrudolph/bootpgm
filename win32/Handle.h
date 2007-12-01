@@ -2,6 +2,34 @@
 
 class IO;
 
+class IBuffer
+{
+public:
+	virtual char *buffer() = 0;
+	virtual unsigned int length() = 0;
+};
+
+class Buffer : public IBuffer
+{
+	Buffer(Buffer&);
+	Buffer& operator=(Buffer&);
+
+	char *data;
+	unsigned int len;
+public:
+	Buffer(unsigned int l)
+	{
+		data = new char[l];
+		len = l;
+	}
+	virtual ~Buffer()
+	{
+		delete []data;
+	}
+	virtual char *buffer(){return data;}
+	virtual unsigned int length(){return len;}
+};
+
 class UnicodeString
 {
 private:
@@ -37,6 +65,10 @@ public:
 		str2.Buffer = new wchar_t[str.Length/2];
 		memcpy(str2.Buffer,str.Buffer,str.Length);
 		return *new UnicodeString(str2);
+	}
+	char *chars(IBuffer &b)
+	{
+		return chars(b.buffer(),b.length());
 	}
 	char *chars(char *buffer,size_t len)
 	{

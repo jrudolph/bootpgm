@@ -208,7 +208,7 @@ void RegKey::print_subkeys(IO &io)
 	do
 	{		
 		ULONG res;
-		KEY_BASIC_INFORMATION *info = reinterpret_cast<KEY_BASIC_INFORMATION*>(buffer);
+		
 		status = ZwEnumerateKey(
 			handle
 			,i
@@ -219,6 +219,7 @@ void RegKey::print_subkeys(IO &io)
 
 		if (status == STATUS_SUCCESS)
 		{
+			KEY_BASIC_INFORMATION *info = reinterpret_cast<KEY_BASIC_INFORMATION*>(buffer);
 			UnicodeString name(info->Name,(unsigned short)info->NameLength);
 			io.println(name.chars(buffer,sizeof(buffer)));
 		}

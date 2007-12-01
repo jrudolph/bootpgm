@@ -23,8 +23,7 @@ void RegistryBrowser::lv(IO &io,char *args)
 
 void RegistryBrowser::tk(IO &io,char *args)
 {
-	char buffer[1000];
-	io.println(get_current_key()->get_name().chars(buffer,sizeof(buffer)));
+	io.println(get_current_key()->get_name().chars(Buffer(1000)));
 }
 
 void RegistryBrowser::ck(IO &io,char *args)
