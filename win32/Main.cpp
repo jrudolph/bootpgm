@@ -152,7 +152,8 @@ void Main::run()
 }
 void Main::rpl()
 {
-	io.println("Starting RPL (Read-Print-Loop) Type \"exit\" to stop.");
+	io.println("Starting RPL (Read-Print-Loop) Type \"exit\" to stop."
+		"Type \"cmds\" to show all available commands.");
 
 	char buffer[100];
 	buffer[0]=0;
