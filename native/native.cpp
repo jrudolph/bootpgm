@@ -418,12 +418,12 @@ extern "C" void NtProcessStartup(::PPEB peb )
 	
 	main.showSplashScreen();
 
-#ifdef INTERACTIVE
-    if (startupWithKey(io,2,'v'))
-        main.rpl();
-    else
-#endif
-        setCompnameFromFile(io,0);
+//#ifdef INTERACTIVE
+//    if (startupWithKey(io,2,'v'))
+	main.rpl();
+//    else
+//#endif
+    //setCompnameFromFile(io,0);
 
     NtTerminateProcess( NtCurrentProcess(), 0 );
 }
