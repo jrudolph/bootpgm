@@ -143,9 +143,9 @@ public:
         b[1]=0;
         if (ch==8)
         {
-            println("");
-            buffer[length]=0;
-            print("> ");
+			buffer[length]=0;
+
+            print("\rrpl> ");
             print(buffer);
         }
         else
