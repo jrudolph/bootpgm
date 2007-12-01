@@ -145,6 +145,8 @@ public:
         {
 			buffer[length]=0;
 
+			// use \r to rewrite a line see
+			// http://groups.google.de/group/comp.os.ms-windows.programmer.nt.kernel-mode/browse_thread/thread/96f512b7b22b33bf/81c98d7642092a5d?lnk=st&q=ntdisplaystring#81c98d7642092a5d
             print("\rrpl> ");
             print(buffer);
         }
