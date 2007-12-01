@@ -208,7 +208,13 @@ void testRegKey(IO &io,char *args)
 
 const int RdWrIoPort = 0x80;
 
-void initReg(IO &io2,char *args)
+void initReg(IO &io,char *args)
+{
+	ULONG status = NtInitializeRegistry(false);
+	CHECKER(status);
+}
+
+void showNoWrite(IO &io2,char *args)
 {
 	//ULONG status = NtInitializeRegistry(2);
 	//CHECKER(status);
@@ -239,8 +245,8 @@ void initReg(IO &io2,char *args)
 
 	if (Value == 1)
 	{
-		io2.println("NoWrite set, now resetting");
-		Value = 0;
+		io2.println("NoWrite set");
+		/*Value = 0;
 
 		memset(&io, 0, sizeof(io));
 		io.IoAddr = RdWrIoPort;
@@ -258,7 +264,7 @@ void initReg(IO &io2,char *args)
 		io.Reserved4 = 1;
 		io.Reserved6 = 1;
 		status = ZwSystemDebugControl(DebugSysReadIoSpace, &io, sizeof(io), NULL, 0, NULL);
-		CHECKER(status);
+		CHECKER(status);*/
 	}
 	else
 		io2.println("NoWrite not set");	
@@ -271,5 +277,6 @@ void register_experimental_cmds(Main &main)
 	main.addCommand("unloadSam",unloadSam);
 	main.addCommand("saveSam",saveSam);
 	main.addCommand("initReg",initReg);
+	main.addCommand("noWrite",showNoWrite);
 	main.addCommand("showName",showName);
 }
