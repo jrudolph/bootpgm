@@ -34,9 +34,9 @@ To write such a program you can only use the NT Native API. The native api consi
  * Microsoft Windows Internals <a href="http://www.amazon.de/gp/product/0735619174/ref=as_li_tl?ie=UTF8&camp=1638&creative=19454&creativeASIN=0735619174&linkCode=as2&tag=virtvoid-21&linkId=AEQC32ELRHX6ZBB5">Microsoft® Windows® Internals, Fourth Edition: Microsoft Windows Server(TM) 2003, Windows XP, and Windows 2000: Microsoft Windows Server 2003, Windows XP and Windows 2000 (Pro-Developer)</a>
  / <a href="http://www.amazon.de/gp/product/0735619174/ref=as_li_tl?ie=UTF8&camp=1638&creative=19454&creativeASIN=0735619174&linkCode=as2&tag=virtvoid-21&linkId=YXH5JMNJ5OHWUQHS">Microsoft® Windows® Internals, Fourth Edition: Microsoft Windows Server(TM) 2003, Windows XP, and Windows 2000: Microsoft Windows Server 2003, Windows XP and Windows 2000 (Pro-Developer)</a> (affiliate links)
  * A [thread](http://www.osronline.com/showThread.cfm?link=9504) on OSR's forum
- * [ Syscall Table and comparison of different Windows versions](http://metasploit.com/users/opcode/syscalls.html)
+ * [Syscall Table and comparison of different Windows versions](http://j00ru.vexillium.org/ntapi/)
  * Petter Nordahl's site about the [Offline Nt Password & Registry Editor](http://home.eunet.no/pnordahl/ntpasswd/ ) with some interesting information regarding the structure of the SAM
- * Bruce Ediger's comment about [Windows NT, Secret APIs and the Consequences](http://www.users.qwest.net/~eballen1/nt.sekrits.html)
+ * Bruce Ediger's comment about [Windows NT, Secret APIs and the Consequences](http://www.stratigery.com/nt.sekrits.html)
 
 # Additional Information
 
@@ -105,7 +105,7 @@ So your choices are:
 
 See also:
  * [Reversing Microsoft Visual C++ Part I: Exception Handling](http://www.openrce.org/articles/full_view/21)
- * [How a C++ compiler implements exception handling](http://www.codeproject.com/cpp/exceptionhandler.asp)
+ * [How a C++ compiler implements exception handling](http://www.codeproject.com/Articles/2126/How-a-C-compiler-implements-exception-handling)
  * [The Exception Model](http://blogs.msdn.com/cbrumme/archive/2003/10/01/51524.aspx)
  * [A Crash Course in SEH](http://www.microsoft.com/msj/0197/exception/exception.aspx)
  * [New Vectored Exception Handling in Windows XP](http://msdn.microsoft.com/msdnmag/issues/01/09/hood/default.aspx)
