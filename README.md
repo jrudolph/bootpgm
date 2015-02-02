@@ -29,13 +29,10 @@ To write such a program you can only use the NT Native API. The native api consi
 ## More Information & Links
  * Sysinternals' [Inside Native Applications](http://www.microsoft.com/technet/sysinternals/information/NativeApplications.mspx)
  * Gary Nebbett's <a href="http://www.amazon.de/gp/product/1578701996/ref=as_li_tl?ie=UTF8&camp=1638&creative=19454&creativeASIN=1578701996&linkCode=as2&tag=virtvoid-21&linkId=RGN3TH74V47EXNWI">Windows NT/2000 Native API Reference</a> (affiliate link)
- * Sven Schreiber's <a href="http://www.amazon.de/gp/product/0201721872/ref=as_li_tl?ie=UTF8&camp=1638&creative=19454&creativeASIN=0201721872&linkCode=as2&tag=virtvoid-21&linkId=DWDLWZLDJUHP2IAQ">Undocumented Windows 2000 Secrets, w. CD-ROM: A Programmer's Cookbook</a> (affiliate link)
-
- or the [PDF Version](http://www.rawol.com/?topic=41)
+ * Sven Schreiber's <a href="http://www.amazon.de/gp/product/0201721872/ref=as_li_tl?ie=UTF8&camp=1638&creative=19454&creativeASIN=0201721872&linkCode=as2&tag=virtvoid-21&linkId=DWDLWZLDJUHP2IAQ">Undocumented Windows 2000 Secrets, w. CD-ROM: A Programmer's Cookbook</a> (affiliate link) or the [PDF Version](http://www.rawol.com/?topic=41)
  * NTInternals' [Undocumented NT Functions for Microsoft Windows NT/2000] (http://undocumented.ntinternals.net/)
  * Microsoft Windows Internals <a href="http://www.amazon.de/gp/product/0735619174/ref=as_li_tl?ie=UTF8&camp=1638&creative=19454&creativeASIN=0735619174&linkCode=as2&tag=virtvoid-21&linkId=AEQC32ELRHX6ZBB5">Microsoft® Windows® Internals, Fourth Edition: Microsoft Windows Server(TM) 2003, Windows XP, and Windows 2000: Microsoft Windows Server 2003, Windows XP and Windows 2000 (Pro-Developer)</a>
  / <a href="http://www.amazon.de/gp/product/0735619174/ref=as_li_tl?ie=UTF8&camp=1638&creative=19454&creativeASIN=0735619174&linkCode=as2&tag=virtvoid-21&linkId=YXH5JMNJ5OHWUQHS">Microsoft® Windows® Internals, Fourth Edition: Microsoft Windows Server(TM) 2003, Windows XP, and Windows 2000: Microsoft Windows Server 2003, Windows XP and Windows 2000 (Pro-Developer)</a> (affiliate links)
-
  * A [thread](http://www.osronline.com/showThread.cfm?link=9504) on OSR's forum
  * [ Syscall Table and comparison of different Windows versions](http://metasploit.com/users/opcode/syscalls.html)
  * Petter Nordahl's site about the [Offline Nt Password & Registry Editor](http://home.eunet.no/pnordahl/ntpasswd/ ) with some interesting information regarding the structure of the SAM
