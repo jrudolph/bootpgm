@@ -27,14 +27,14 @@ To write such a program you can only use the NT Native API. The native api consi
  * [Presentation (German)](https://github.com/jrudolph/bootpgm/blob/master/doc/winnapi.pdf?raw=true)
 
 ## More Information & Links
- * Sysinternals' [Inside Native Applications](http://www.microsoft.com/technet/sysinternals/information/NativeApplications.mspx)
+ * Sysinternals' [Inside Native Applications](https://docs.microsoft.com/en-us/sysinternals/learn/inside-native-applications)
  * Gary Nebbett's <a href="http://www.amazon.de/gp/product/1578701996/ref=as_li_tl?ie=UTF8&camp=1638&creative=19454&creativeASIN=1578701996&linkCode=as2&tag=virtvoid-21&linkId=RGN3TH74V47EXNWI">Windows NT/2000 Native API Reference</a> (affiliate link)
- * Sven Schreiber's <a href="http://www.amazon.de/gp/product/0201721872/ref=as_li_tl?ie=UTF8&camp=1638&creative=19454&creativeASIN=0201721872&linkCode=as2&tag=virtvoid-21&linkId=DWDLWZLDJUHP2IAQ">Undocumented Windows 2000 Secrets, w. CD-ROM: A Programmer's Cookbook</a> (affiliate link) or the [PDF Version](http://www.rawol.com/?topic=41)
+ * Sven Schreiber's <a href="http://www.amazon.de/gp/product/0201721872/ref=as_li_tl?ie=UTF8&camp=1638&creative=19454&creativeASIN=0201721872&linkCode=as2&tag=virtvoid-21&linkId=DWDLWZLDJUHP2IAQ">Undocumented Windows 2000 Secrets, w. CD-ROM: A Programmer's Cookbook</a> (affiliate link) or the [PDF Version](https://users.du.se/~hjo/cs/common/books/Undocumented%20Windows%202000%20Secrets/sbs-w2k-preface.pdf)
  * NTInternals' [Undocumented NT Functions for Microsoft Windows NT/2000] (http://undocumented.ntinternals.net/)
  * Microsoft Windows Internals <a href="http://www.amazon.de/gp/product/0735625301/ref=as_li_tl?ie=UTF8&camp=1638&creative=19454&creativeASIN=0735625301&linkCode=as2&tag=virtvoid-21&linkId=KM2PRWRZ23EEACPN">Windows® Internals, Fifth Edition (PRO-Developer)</a> (affiliate link)
  * A [thread](http://www.osronline.com/showThread.cfm?link=9504) on OSR's forum
  * [Syscall Table and comparison of different Windows versions](http://j00ru.vexillium.org/ntapi/)
- * Petter Nordahl's site about the [Offline Nt Password & Registry Editor](http://home.eunet.no/pnordahl/ntpasswd/ ) with some interesting information regarding the structure of the SAM
+ * Petter Nordahl's site about the [Offline Nt Password & Registry Editor](https://pogostick.net/~pnh/ntpasswd/) with some interesting information regarding the structure of the SAM
  * Bruce Ediger's comment about [Windows NT, Secret APIs and the Consequences](http://www.stratigery.com/nt.sekrits.html)
 
 # Additional Information
@@ -54,7 +54,7 @@ Boot programs always have to use the native API and link against ntdll. That is 
 
 ### The registry at boot-time
 
-At the time a boot program is executed the registry is not yet initialized. Machine/system and machine/hardware are loaded because they need to be loaded for Windows to find the drivers. The SAM at machine\SAM and the machine\software are not yet loaded. If you have to read values from this keys you have to plug the keys into the registry (`NtLoadKey`) from the corresponding file. Don't forget to unload the keys (`NtUnloadKey`) afterwards because Windows fails with a bluescreen afterwards if it finds hives mapped it is not used to.
+At the time a boot program is executed the registry is not yet initialized. Machine/system and machine/hardware are loaded because they need to be loaded for Windows to find the drivers. The SAM at machine\SAM and the machine\software are not yet loaded. If you have to read values from this keys you have to plug the keys into the registry (`NtLoadKey`) from the corresponding file. Don't forget to unload the keys (`NtUnloadKey`) afterwards because Windows fails with a bluescreen afterwards if it finds hives mapped when it does not expect them to be.
 
 ### Writing to Registry at boot-time
 
@@ -66,17 +66,17 @@ So the registry is not writeable at boot-time.
 
 What are the solutions for this problem?
  * Unset the flag using the Kernel Debugger. This works but this is not a very automatic solution. It is not portable as well since `CmpNoWrite` is at another position in the kernel everytime the kernel is built.
- * Unset the flag in the boot program from user-mode using a hack. (see [source:/trunk/win32/experimental.cpp] function `showNoWrite`). The same issues regarding portability apply.
- * Use `NtInitializeRegistry` to initialize the registry like smss.exe would do it after executing the boot program. That loads the software and SAM hives and marks the Registry as writable. You don't even have to flush the registry to disk since the changes are there nevertheless after booting. That is because the registry can be only initialized once. If you call `NtInitializeRegistry`, the normal call from smss.exe will fail but Windows will start though. It might be there will be any problems, but for now no such problems occured. [[BR]] ''A side note: I found this fact - how you can make the registry writable - in a usenet post from 1997 but it still works...''
+ * Unset the flag in the boot program from user-mode using a hack. (see [function `showNoWrite`](https://github.com/jrudolph/bootpgm/blob/master/win32/experimental.cpp#L235)). The same issues regarding portability apply.
+ * Use `NtInitializeRegistry` to initialize the registry like smss.exe would do it after executing the boot program. That call loads the software and SAM hives and marks the Registry as writable. You don't even have to flush the registry to disk since the changes are persistent nevertheless after booting. That is because the registry can only be initialized once. If you call `NtInitializeRegistry`, the regular call from smss.exe will fail but Windows will start anyway. It is unclear if that works all the time, during our testing it seemed to work always. *A side note: I found this fact about how to make the registry writable in a usenet post from 1997 but it still works...*
 
 ## C++ exceptions in native programs
 
 This native api program/library uses C++-features like classes in many
 places. This seems to work without problems so far.
-It would be appropriate to use C++ exceptions as well. This won't
-work. At least not with much effort. C++ exceptions are working
-through the subtle mechanisms of Windows, the C++ compiler *and* the
-runtime library working together.
+It would be appropriate to use C++ exceptions as well. This will not
+work, however. At least not without some serious effort. C++ exceptions are working
+through subtle mechanisms of Windows, the C++ compiler *and* the
+runtime library all together.
 
 To use exception handling one has to enable the specific options in
 the compiler. You can use this lines in your SOURCES to enable it:
@@ -89,8 +89,8 @@ USE_RTTI=1
 If we don't link a runtime library linking will error with unresolved
 externals like `__CxxFrameHandler` and others.
 
-Since we can't use Win32 dlls in a native program we can't link
-against the standard rt (msvcrt). So the right choice seems to be the
+Since we cannot use Win32 dlls in a native program we cannot link
+against the standard runtime library (msvcrt). So the right choice seems to be the
 use of the staticly linkable runtime library libc. This does not work
 either. Even libc contains uncountable references to functions defined
 in kernel32 and user32. We cannot link to them, of course.
