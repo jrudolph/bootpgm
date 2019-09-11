@@ -36,6 +36,7 @@ To write such a program you can only use the NT Native API. The native api consi
  * [Syscall Table and comparison of different Windows versions](http://j00ru.vexillium.org/ntapi/)
  * Petter Nordahl's site about the [Offline Nt Password & Registry Editor](https://pogostick.net/~pnh/ntpasswd/) with some interesting information regarding the structure of the SAM
  * Bruce Ediger's comment about [Windows NT, Secret APIs and the Consequences](http://www.stratigery.com/nt.sekrits.html)
+ * [Native shell — a command prompt for native mode](http://hex.pp.ua/nt-native-applications-shell-eng.php)
 
 # Additional Information
 
